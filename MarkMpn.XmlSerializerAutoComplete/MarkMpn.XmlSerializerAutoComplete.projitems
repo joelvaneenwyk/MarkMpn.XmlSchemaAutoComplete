@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>1ee1dc3b-9a3a-454d-b70a-b059b6809010</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>MarkMpn.XmlSerializerAutoComplete</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AutoComplete.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AutocompleteSuggestion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DfaBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DfaState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DfaTransition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ParserState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PartialXmlNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PartialXmlReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PropertyOrField.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)XmlTypeConverter.cs" />
+  </ItemGroup>
+</Project>
