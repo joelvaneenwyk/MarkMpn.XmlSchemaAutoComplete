@@ -187,87 +187,12 @@ namespace MarkMpn.XmlSerializerAutoComplete
                                 var itemType = arrayItem.Type ?? elementType;
                                 var itemName = arrayItem.ElementName ?? itemType.Name;
 
-                                var addItem = new CreateInstanceTransition
-                                {
-                                    ElementName = itemName,
-                                    Property = p,
-                                    Type = itemType,
-                                    Next = new DfaState()
-                                };
-
-                                addItem.Next.Transitions.Add(new EndInstanceTransition
-                                {
-                                    ElementName = itemName,
-                                    Next = arrayState
-                                });
-
-                                arrayState.Transitions.Add(addItem);
-
-                                var includes = itemType.GetCustomAttributes<XmlIncludeAttribute>();
-
-                                foreach (var include in includes)
-                                {
-                                    var addDerivedItem = new CreateInstanceTransition
-                                    {
-                                        ElementName = itemName,
-                                        TypeName = include.Type.Name,
-                                        Property = p,
-                                        Type = include.Type,
-                                        Next = new DfaState()
-                                    };
-
-                                    addDerivedItem.Next.Transitions.Add(new EndInstanceTransition
-                                    {
-                                        ElementName = itemName,
-                                        Next = arrayState
-                                    });
-
-                                    arrayState.Transitions.Add(addDerivedItem);
-                                }
+                                AddPolymorphicElement(arrayState, itemName, p, itemType);
                             }
                         }
                         else
                         {
-                            var addItem = new CreateInstanceTransition
-                            {
-                                ElementName = elementType.Name,
-                                Property = p,
-                                Type = elementType,
-                                Next = new DfaState()
-                            };
-
-                            addItem.Next.Transitions.Add(new EndInstanceTransition
-                            {
-                                ElementName = elementType.Name,
-                                Next = arrayState
-                            });
-
-                            create.Next.Transitions.Add(addItem);
-
-                            var includes = elementType.GetCustomAttributes<XmlIncludeAttribute>().ToList();
-
-                            foreach (var include in includes)
-                            {
-                                var itemType = include.Type;
-                                var itemName = include.Type.Name;
-
-                                var addDerivedItem = new CreateInstanceTransition
-                                {
-                                    ElementName = itemName,
-                                    TypeName = itemType.Name,
-                                    Property = p,
-                                    Type = itemType,
-                                    Next = new DfaState()
-                                };
-
-                                addDerivedItem.Next.Transitions.Add(new EndInstanceTransition
-                                {
-                                    ElementName = itemName,
-                                    Next = arrayState
-                                });
-
-                                create.Next.Transitions.Add(addDerivedItem);
-                            }
+                            AddPolymorphicElement(arrayState, elementType.Name, p, elementType);
                         }
 
                         // Handle the array end element
@@ -284,43 +209,7 @@ namespace MarkMpn.XmlSerializerAutoComplete
                             var itemType = arrayElement.Type ?? elementType;
                             var itemName = arrayElement.ElementName ?? itemType.Name;
 
-                            var addItem = new CreateInstanceTransition
-                            {
-                                ElementName = itemName,
-                                Property = p,
-                                Type = itemType,
-                                Next = new DfaState()
-                            };
-
-                            addItem.Next.Transitions.Add(new EndInstanceTransition
-                            {
-                                ElementName = itemName,
-                                Next = create.Next
-                            });
-
-                            create.Next.Transitions.Add(addItem);
-
-                            var includes = itemType.GetCustomAttributes<XmlIncludeAttribute>();
-
-                            foreach (var include in includes)
-                            {
-                                var addDerivedItem = new CreateInstanceTransition
-                                {
-                                    ElementName = itemName,
-                                    TypeName = include.Type.Name,
-                                    Property = p,
-                                    Type = include.Type,
-                                    Next = new DfaState()
-                                };
-
-                                addDerivedItem.Next.Transitions.Add(new EndInstanceTransition
-                                {
-                                    ElementName = itemName,
-                                    Next = create.Next
-                                });
-
-                                create.Next.Transitions.Add(addDerivedItem);
-                            }
+                            AddPolymorphicElement(create.Next, itemName, p, itemType);
                         }
                     }
                 }
@@ -363,53 +252,58 @@ namespace MarkMpn.XmlSerializerAutoComplete
                 else
                 {
                     var element = member.GetCustomAttribute<XmlElementAttribute>();
-                    var includes = p.Type.GetCustomAttributes<XmlIncludeAttribute>().ToList();
-
-                    if (includes.Count > 0)
-                    {
-                        foreach (var include in includes)
-                        {
-                            var itemType = include.Type;
-
-                            var subCreate = new CreateInstanceTransition
-                            {
-                                ElementName = element?.ElementName ?? member.Name,
-                                TypeName = itemType.Name,
-                                Property = p,
-                                Type = itemType,
-                                Next = new DfaState()
-                            };
-
-                            subCreate.Next.Transitions.Add(new EndInstanceTransition
-                            {
-                                ElementName = subCreate.ElementName,
-                                Next = create.Next
-                            });
-                            create.Next.Transitions.Add(subCreate);
-                        }
-                    }
-                    else
-                    {
-                        var subCreate = new CreateInstanceTransition
-                        {
-                            ElementName = element?.ElementName ?? member.Name,
-                            Property = p,
-                            Type = p.Type,
-                            Next = new DfaState()
-                        };
-
-                        subCreate.Next.Transitions.Add(new EndInstanceTransition
-                        {
-                            ElementName = subCreate.ElementName,
-                            Next = create.Next
-                        });
-                        create.Next.Transitions.Add(subCreate);
-                    }
+                    AddPolymorphicElement(create.Next, element?.ElementName ?? member.Name, p, null);
                 }
             }
 
             if (!hasTextProperty)
                 create.Next.Transitions.Add(new IgnoreTextTransition { Next = create.Next });
+        }
+
+        private void AddPolymorphicElement(DfaState from, string elementName, PropertyOrField property, Type type)
+        {
+            type = type ?? property.Type;
+
+            if (!type.IsInterface && !type.IsAbstract)
+            {
+                var subCreate = new CreateInstanceTransition
+                {
+                    ElementName = elementName,
+                    Property = property,
+                    Type = type,
+                    Next = new DfaState()
+                };
+
+                subCreate.Next.Transitions.Add(new EndInstanceTransition
+                {
+                    ElementName = subCreate.ElementName,
+                    Next = from
+                });
+                from.Transitions.Add(subCreate);
+            }
+
+            var includes = type.GetCustomAttributes<XmlIncludeAttribute>().ToList();
+
+            foreach (var include in includes)
+            {
+                var includedType = include.Type;
+
+                var subCreate = new CreateInstanceTransition
+                {
+                    ElementName = elementName,
+                    TypeName = includedType.Name,
+                    Property = property,
+                    Type = includedType,
+                    Next = new DfaState()
+                };
+
+                subCreate.Next.Transitions.Add(new EndInstanceTransition
+                {
+                    ElementName = subCreate.ElementName,
+                    Next = from
+                });
+                from.Transitions.Add(subCreate);
+            }
         }
 
         private bool IsSimpleType(Type type)
