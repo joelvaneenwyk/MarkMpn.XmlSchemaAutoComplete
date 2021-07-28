@@ -1,4 +1,6 @@
 using System;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using MarkMpn.XmlSerializerAutoComplete.Tests.Model;
 using Xunit;
 
@@ -165,6 +167,27 @@ namespace MarkMpn.XmlSerializerAutoComplete.Tests
             Assert.Equal("1", root.Name);
             Assert.Equal("2", root?.Child.Name);
             Assert.Equal("3", root?.Child?.Child.Name);
+        }
+
+        [Fact]
+        public void Foo()
+        {
+            var schemas = new XmlSchemas();
+            var exporter = new XmlSchemaExporter(schemas);
+            var mapping = new XmlReflectionImporter().ImportTypeMapping(typeof(Root));
+            exporter.ExportTypeMapping(mapping);
+            schemas.Compile(null, true);
+
+            var importer = new XmlSchemaImporter(schemas);
+
+            foreach (XmlSchema schema in schemas)
+            {
+                foreach (XmlSchemaType schemaType in schema.SchemaTypes.Values)
+                    importer.ImportSchemaType(schemaType.QualifiedName);
+                
+                foreach (XmlSchemaElement schemaElement in schema.Elements.Values)
+                    importer.ImportTypeMapping(schemaElement.QualifiedName);
+            }
         }
     }
 }

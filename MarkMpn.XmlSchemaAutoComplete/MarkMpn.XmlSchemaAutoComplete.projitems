@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>ce3b0f1b-1668-4ac3-a7ad-fe1872c6bcc3</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>MarkMpn.XmlSchemaAutoComplete</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Autocomplete.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AutocompleteSuggestion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PartialXmlNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PartialXmlReader.cs" />
+  </ItemGroup>
+</Project>

@@ -7,10 +7,16 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MarkMpn.XmlSerializerAutoCo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkMpn.XmlSerializerAutoComplete.Tests", "MarkMpn.XmlSerializerAutoComplete.Tests\MarkMpn.XmlSerializerAutoComplete.Tests.csproj", "{56373F4D-E32C-431C-B966-38D571F221A1}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MarkMpn.XmlSchemaAutocomplete", "MarkMpn.XmlSchemaAutoComplete\MarkMpn.XmlSchemaAutocomplete.shproj", "{CE3B0F1B-1668-4AC3-A7AD-FE1872C6BCC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkMpn.XmlSchemaAutocomplete.Tests", "MarkMpn.XmlSchemaAutocomplete.Tests\MarkMpn.XmlSchemaAutocomplete.Tests.csproj", "{9596CB58-AAA1-4D0F-8500-776784F8AFF5}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		MarkMpn.XmlSerializerAutoComplete\MarkMpn.XmlSerializerAutoComplete.projitems*{1ee1dc3b-9a3a-454d-b70a-b059b6809010}*SharedItemsImports = 13
 		MarkMpn.XmlSerializerAutoComplete\MarkMpn.XmlSerializerAutoComplete.projitems*{56373f4d-e32c-431c-b966-38d571f221a1}*SharedItemsImports = 5
+		MarkMpn.XmlSchemaAutoComplete\MarkMpn.XmlSchemaAutoComplete.projitems*{9596cb58-aaa1-4d0f-8500-776784f8aff5}*SharedItemsImports = 5
+		MarkMpn.XmlSchemaAutoComplete\MarkMpn.XmlSchemaAutoComplete.projitems*{ce3b0f1b-1668-4ac3-a7ad-fe1872c6bcc3}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +27,10 @@ Global
 		{56373F4D-E32C-431C-B966-38D571F221A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56373F4D-E32C-431C-B966-38D571F221A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56373F4D-E32C-431C-B966-38D571F221A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9596CB58-AAA1-4D0F-8500-776784F8AFF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9596CB58-AAA1-4D0F-8500-776784F8AFF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9596CB58-AAA1-4D0F-8500-776784F8AFF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9596CB58-AAA1-4D0F-8500-776784F8AFF5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
