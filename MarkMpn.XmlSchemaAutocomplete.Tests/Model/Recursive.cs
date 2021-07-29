@@ -8,6 +8,8 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests.Model
     {
         public string Name { get; set; }
 
+        public Gender? Gender { get; set; }
+
         public Recursive Child { get; set; }
     }
 }

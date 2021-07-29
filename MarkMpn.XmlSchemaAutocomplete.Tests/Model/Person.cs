@@ -15,5 +15,8 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests.Model
         public string LastName { get; set; }
 
         public int Age { get; set; }
+
+        [XmlAttribute("gender")]
+        public Gender GenderAttribute { get; set; }
     }
 }

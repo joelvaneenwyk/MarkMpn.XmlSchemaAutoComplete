@@ -226,7 +226,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
                     if (_state == ReaderState.InAttributeName)
                     {
-                        ((PartialXmlElement)node).CurrentAttribute = attributeName;
+                        ((PartialXmlElement)node).CurrentAttribute = _text.Substring(start, _offset - start);
                     }
 
                     return true;

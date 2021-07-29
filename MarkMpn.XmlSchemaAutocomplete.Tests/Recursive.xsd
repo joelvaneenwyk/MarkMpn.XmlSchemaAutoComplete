@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-16"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Recursive" nillable="true" type="Recursive" />
+  <xs:complexType name="Recursive">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="Gender" nillable="true" type="Gender" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Child" type="Recursive" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="Gender">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Male" />
+      <xs:enumeration value="Female" />
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

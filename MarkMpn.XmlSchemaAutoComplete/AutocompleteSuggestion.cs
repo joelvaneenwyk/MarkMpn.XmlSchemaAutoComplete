@@ -17,4 +17,16 @@ namespace MarkMpn.XmlSchemaAutocomplete
     {
         public string Name { get; set; }
     }
+
+    public class AutocompleteAttributeValueSuggestion : AutocompleteSuggestion
+    {
+        public string Value { get; set; }
+
+        public bool IncludeQuotes { get; set; }
+    }
+
+    public class AutocompleteValueSuggestion : AutocompleteSuggestion
+    {
+        public string Value { get; set; }
+    }
 }

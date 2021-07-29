@@ -33,5 +33,100 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
             var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
+
+        [Theory]
+        [InlineData("<MyDoc><Members><", "p", "c")]
+        [InlineData("<MyDoc><S", "Staff")]
+        public void SuggestsArrayMembers(string input, params string[] elements)
+        {
+            var autocomplete = new Autocomplete<Root>();
+            var suggestions = autocomplete.GetSuggestions(input);
+            var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e }).ToArray<AutocompleteSuggestion>();
+            Assert.Equal(expected, suggestions, new PropertyComparer());
+        }
+
+        [Theory]
+        [InlineData("<MyDoc ", "xmlns:xsi", "xsi:nil")]
+        [InlineData("<MyDoc><Members><p ", "xsi:nil", "xsi:type", "gender", "surname")]
+        [InlineData("<MyDoc><Members><c ", "xsi:nil", "gender", "surname")]
+        [InlineData("<MyDoc><Staff ", "xsi:type", "gender", "surname")]
+        [InlineData("<MyDoc><Staff s", "surname")]
+        [InlineData("<MyDoc><Staff f")]
+        public void SuggestsAttributes(string input, params string[] attributes)
+        {
+            var autocomplete = new Autocomplete<Root>();
+            var suggestions = autocomplete.GetSuggestions(input);
+            var expected = attributes.Select(e => new AutocompleteAttributeSuggestion { Name = e }).ToArray<AutocompleteSuggestion>();
+            Assert.Equal(expected, suggestions, new PropertyComparer());
+        }
+
+        [Theory]
+        [InlineData("<MyDoc xmlns:xsi=", "http://www.w3.org/2001/XMLSchema-instance")]
+        [InlineData("<MyDoc xmlns:xsi=\"", "http://www.w3.org/2001/XMLSchema-instance")]
+        [InlineData("<MyDoc><Staff gender=", "Male", "Female")]
+        [InlineData("<MyDoc><Staff gender=\"M", "Male")]
+        public void SuggestsAttributeValues(string input, params string[] values)
+        {
+            var autocomplete = new Autocomplete<Root>();
+            var suggestions = autocomplete.GetSuggestions(input);
+            var expected = values.Select(e => new AutocompleteAttributeValueSuggestion { Value = e, IncludeQuotes = input.EndsWith("=") }).ToArray<AutocompleteSuggestion>();
+            Assert.Equal(expected, suggestions, new PropertyComparer());
+        }
+
+        [Theory]
+        [InlineData("<Recursive><Gender>", "Male", "Female")]
+        [InlineData("<Recursive><Gender>M", "Male")]
+        public void SuggestsElementEnumValues(string input, params string[] values)
+        {
+            var autocomplete = new Autocomplete<Recursive>();
+            var suggestions = autocomplete.GetSuggestions(input);
+            var expected = values.Select(e => new AutocompleteValueSuggestion { Value = e }).ToArray<AutocompleteSuggestion>();
+            Assert.Equal(expected, suggestions, new PropertyComparer());
+        }
+
+        [Theory]
+        [InlineData("<", "Recursive")]
+        [InlineData("<Recursive><", "Name", "Gender")]
+        [InlineData("<Recursive><Gender xsi:nil='true' /><", "Child")]
+        [InlineData("<Recursive><Gender xsi:nil='true' /><Child><", "Name", "Gender")]
+        [InlineData("<Recursive><Gender xsi:nil='true' /><Child><Gender xsi:nil='true' /><", "Child")]
+        [InlineData("<Recursive><Gender xsi:nil='true' /><Child><Gender xsi:nil='true' /><Child><Gender xsi:nil='true' /><", "Child")]
+        public void SuggestsRecursiveElements(string input, params string[] elements)
+        {
+            var autocomplete = new Autocomplete<Recursive>();
+            var suggestions = autocomplete.GetSuggestions(input);
+            var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e }).ToArray<AutocompleteSuggestion>();
+            Assert.Equal(expected, suggestions, new PropertyComparer());
+        }
+
+        [Theory]
+        [InlineData("<Recursive><Name ", false)]
+        [InlineData("<Recursive><Gender ", true)]
+        public void SuggestsNillableAttribute(string input, bool nillableExpected)
+        {
+            var autocomplete = new Autocomplete<Recursive>();
+            var suggestions = autocomplete.GetSuggestions(input);
+
+            if (nillableExpected)
+                Assert.Contains(suggestions.OfType<AutocompleteAttributeSuggestion>(), a => a.Name == "xsi:nil");
+            else
+                Assert.DoesNotContain(suggestions.OfType<AutocompleteAttributeSuggestion>(), a => a.Name == "xsi:nil");
+        }
+
+        [Theory]
+        [InlineData("<Recursive><Gender xsi:nil=")]
+        public void SuggestsBooleanValues(string input)
+        {
+            var autocomplete = new Autocomplete<Recursive>();
+            var suggestions = autocomplete.GetSuggestions(input);
+
+            var expected = new AutocompleteSuggestion[]
+            {
+                new AutocompleteAttributeValueSuggestion { Value = "true", IncludeQuotes = input.EndsWith("=") },
+                new AutocompleteAttributeValueSuggestion { Value = "false", IncludeQuotes = input.EndsWith("=") },
+            };
+
+            Assert.Equal(expected, suggestions, new PropertyComparer());
+        }
     }
 }
