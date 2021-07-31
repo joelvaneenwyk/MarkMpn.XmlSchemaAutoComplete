@@ -151,29 +151,40 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
                             for (var i = currentElement.NextChildElement; i < sequence.Items.Count; i++)
                             {
-                                if (!(sequence.Items[i] is XmlSchemaElement childElement))
-                                    return Array.Empty<AutocompleteSuggestion>();
+                                var particle = sequence.Items[i] as XmlSchemaParticle;
+                                currentElement.ElementCount.TryGetValue(sequence.Items[i], out var count);
+                                XmlSchemaElement matchedElement = null;
 
-                                currentElement.ElementCount.TryGetValue(childElement, out var count);
+                                if (sequence.Items[i] is XmlSchemaChoice choice && MatchChoice(choice, elem, out matchedElement))
+                                {
+                                    foundMatch = true;
+                                }
+                                else if (sequence.Items[i] is XmlSchemaElement childElement && childElement.Name == elem.Name)
+                                {
+                                    matchedElement = childElement;
+                                    foundMatch = true;
+                                }
 
-                                if (childElement.Name == elem.Name)
+                                if (foundMatch)
                                 {
                                     count++;
-                                    currentElement.ElementCount[childElement] = count;
+                                    currentElement.ElementCount[sequence.Items[i]] = count;
 
-                                    if (count == childElement.MaxOccurs)
-                                        currentElement.NextChildElement = i + 1;
-                                    else
-                                        currentElement.NextChildElement = i;
+                                    if (particle != null)
+                                    {
+                                        if (count == particle.MaxOccurs)
+                                            currentElement.NextChildElement = i + 1;
+                                        else
+                                            currentElement.NextChildElement = i;
+                                    }
 
                                     var newElement = CreateElement(document, elem);
                                     currentElement.Element.AppendChild(newElement);
-                                    elements.Push(new ElementState(childElement, newElement));
-                                    foundMatch = true;
+                                    elements.Push(new ElementState(matchedElement, newElement));
                                     break;
                                 }
 
-                                if (childElement.MinOccurs > count)
+                                if (particle != null && particle.MinOccurs > count)
                                     valid = false;
                             }
 
@@ -198,25 +209,16 @@ namespace MarkMpn.XmlSchemaAutocomplete
                     {
                         if (currentElement.RepeatCount < choice.MaxOccurs)
                         {
-                            var foundMatch = false;
-
-                            for (var i = 0; i < choice.Items.Count; i++)
+                            if (MatchChoice(choice, elem, out var matchedElement))
                             {
-                                if (!(choice.Items[i] is XmlSchemaElement childElement))
-                                    return Array.Empty<AutocompleteSuggestion>();
-
-                                if (childElement.Name == elem.Name)
-                                {
-                                    var newElement = CreateElement(document, elem);
-                                    currentElement.Element.AppendChild(newElement);
-                                    elements.Push(new ElementState(childElement, newElement));
-                                    foundMatch = true;
-                                    break;
-                                }
+                                var newElement = CreateElement(document, elem);
+                                currentElement.Element.AppendChild(newElement);
+                                elements.Push(new ElementState(matchedElement, newElement));
                             }
-
-                            if (!foundMatch)
+                            else
+                            {
                                 valid = false;
+                            }
                         }
                     }
                     else
@@ -252,15 +254,30 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
                             foreach (var child in sequence.Items.Cast<XmlSchemaObject>().Skip(currentElement.NextChildElement))
                             {
-                                if (!(child is XmlSchemaElement childElement))
-                                    break;
+                                if (child is XmlSchemaChoice choice)
+                                {
+                                    foreach (var choiceItem in choice.Items)
+                                    {
+                                        if (!(choiceItem is XmlSchemaElement childElement))
+                                            break;
 
-                                if (childElement.Name.StartsWith(element.Name))
-                                    suggestions.Add(new AutocompleteElementSuggestion { Name = childElement.Name });
+                                        if (childElement.Name.StartsWith(element.Name))
+                                            suggestions.Add(new AutocompleteElementSuggestion { Name = childElement.Name });
+                                    }
+                                }
+                                else if (child is XmlSchemaElement childElement)
+                                {
+                                    if (childElement.Name.StartsWith(element.Name))
+                                        suggestions.Add(new AutocompleteElementSuggestion { Name = childElement.Name });
 
-                                currentElement.ElementCount.TryGetValue(childElement, out var count);
-                                if (childElement.MinOccurs > count)
+                                    currentElement.ElementCount.TryGetValue(childElement, out var count);
+                                    if (childElement.MinOccurs > count)
+                                        break;
+                                }
+                                else
+                                {
                                     break;
+                                }
                             }
 
                             return suggestions.ToArray();
@@ -420,6 +437,25 @@ namespace MarkMpn.XmlSchemaAutocomplete
             }
 
             return Array.Empty<AutocompleteSuggestion>();
+        }
+
+        private bool MatchChoice(XmlSchemaChoice choice, PartialXmlElement elem, out XmlSchemaElement matchedElement)
+        {
+            matchedElement = null;
+
+            for (var i = 0; i < choice.Items.Count; i++)
+            {
+                if (!(choice.Items[i] is XmlSchemaElement childElement))
+                    return false;
+
+                if (childElement.Name == elem.Name)
+                {
+                    matchedElement = childElement;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private AutocompleteSuggestion[] CompleteTextNode(Stack<ElementState> elements, string text)
