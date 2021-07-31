@@ -146,8 +146,20 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
             var suggestions = autocomplete.GetSuggestions(input);
             var expected = new AutocompleteSuggestion[]
             {
-                new AutocompleteValueSuggestion { Value = path },
+                input.EndsWith("=") ? (AutocompleteSuggestion) new AutocompleteAttributeValueSuggestion { Value = path } : new AutocompleteValueSuggestion { Value = path },
             };
+            Assert.Equal(expected, suggestions, new PropertyComparer());
+        }
+
+        [Theory]
+        [InlineData("<f", "fetch")]
+        [InlineData("<fetch><", "entity", "order")]
+        [InlineData("<fetch><entity /><", "entity", "order")]
+        public void SequenceOfChoice(string input, params string[] elements)
+        {
+            var autocomplete = new Autocomplete<Fetch>();
+            var suggestions = autocomplete.GetSuggestions(input);
+            var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
     }

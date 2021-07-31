@@ -349,6 +349,8 @@ namespace MarkMpn.XmlSchemaAutocomplete
                             attribute = baseComplex.Attributes
                                 .Cast<XmlSchemaAttribute>()
                                 .SingleOrDefault(a => a.Name == element.CurrentAttribute);
+
+                            baseType = baseType.BaseXmlSchemaType;
                         }
 
                         if (attribute != null && attribute.AttributeSchemaType.Content is XmlSchemaSimpleTypeRestriction attrValues)
@@ -494,6 +496,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
             Element = element;
             SchemaTypes = schemaTypes;
             SchemaElements = schemaElements;
+            Attribute = attribute;
         }
 
         public List<AutocompleteAttributeValueSuggestion> Suggestions { get; }
