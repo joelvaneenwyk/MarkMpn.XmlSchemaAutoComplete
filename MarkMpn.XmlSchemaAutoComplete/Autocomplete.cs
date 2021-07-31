@@ -129,10 +129,20 @@ namespace MarkMpn.XmlSchemaAutocomplete
                 }
                 else if (node is PartialXmlEndElement end)
                 {
-                    if (!elements.TryPop(out var lastElement)
-                        || lastElement.ElementName != end.Name)
-                    {
+                    if (!elements.TryPop(out var lastElement))
                         return Array.Empty<AutocompleteSuggestion>();
+                    
+                    if (lastElement.ElementName != end.Name)
+                    {
+                        if (parser.State == ReaderState.InEndElement)
+                        {
+                            elements.Push(lastElement);
+                            valid = false;
+                        }
+                        else
+                        {
+                            return Array.Empty<AutocompleteSuggestion>();
+                        }
                     }
                 }
                 else if (node is PartialXmlElement elem)
@@ -249,59 +259,78 @@ namespace MarkMpn.XmlSchemaAutocomplete
                             .ToArray<AutocompleteSuggestion>();
                     }
 
-                    if (elements.TryPeek(out var currentElement) &&
-                        currentElement.Type is XmlSchemaComplexType complex)
+                    var suggestions = new List<AutocompleteSuggestion>();
+
+                    if (elements.TryPeek(out var currentElement))
                     {
-                        if (complex.ContentTypeParticle is XmlSchemaSequence sequence)
+                        var canClose = String.IsNullOrEmpty(element.Name);
+
+                        if (currentElement.Type is XmlSchemaComplexType complex)
                         {
-                            var suggestions = new List<AutocompleteSuggestion>();
-
-                            foreach (var child in sequence.Items.Cast<XmlSchemaObject>().Skip(currentElement.NextChildElement))
+                            if (complex.ContentTypeParticle is XmlSchemaSequence sequence)
                             {
-                                if (child is XmlSchemaChoice choice)
+                                foreach (var child in sequence.Items.Cast<XmlSchemaObject>().Skip(currentElement.NextChildElement))
                                 {
-                                    foreach (var choiceItem in choice.Items)
+                                    if (child is XmlSchemaChoice choice)
                                     {
-                                        if (!(choiceItem is XmlSchemaElement childElement))
-                                            break;
+                                        foreach (var choiceItem in choice.Items)
+                                        {
+                                            if (!(choiceItem is XmlSchemaElement childElement))
+                                                break;
 
+                                            if (childElement.Name.StartsWith(element.Name))
+                                                suggestions.Add(new AutocompleteElementSuggestion(childElement));
+                                        }
+                                    }
+                                    else if (child is XmlSchemaElement childElement)
+                                    {
                                         if (childElement.Name.StartsWith(element.Name))
                                             suggestions.Add(new AutocompleteElementSuggestion(childElement));
+
+                                        currentElement.ElementCount.TryGetValue(childElement, out var count);
+                                        if (childElement.MinOccurs > count)
+                                            break;
+                                    }
+                                    else
+                                    {
+                                        break;
                                     }
                                 }
-                                else if (child is XmlSchemaElement childElement)
+
+                                if (canClose)
                                 {
+                                    // This element can only be closed if all the child elements have reached their minimum number
+                                    canClose = sequence.Items
+                                        .Cast<XmlSchemaObject>()
+                                        .Skip(currentElement.NextChildElement)
+                                        .OfType<XmlSchemaParticle>()
+                                        .All(particle =>
+                                        {
+                                            currentElement.ElementCount.TryGetValue(particle, out var count);
+                                            return count >= particle.MinOccurs;
+                                        });
+                                }
+                            }
+                            else if (complex.ContentTypeParticle is XmlSchemaChoice choice)
+                            {
+                                foreach (var child in choice.Items)
+                                {
+                                    if (!(child is XmlSchemaElement childElement))
+                                        break;
+
                                     if (childElement.Name.StartsWith(element.Name))
                                         suggestions.Add(new AutocompleteElementSuggestion(childElement));
-
-                                    currentElement.ElementCount.TryGetValue(childElement, out var count);
-                                    if (childElement.MinOccurs > count)
-                                        break;
                                 }
-                                else
-                                {
-                                    break;
-                                }
+
+                                canClose = currentElement.RepeatCount >= choice.MinOccurs;
                             }
-
-                            return suggestions.ToArray();
                         }
-                        else if (complex.ContentTypeParticle is XmlSchemaChoice choice)
-                        {
-                            var suggestions = new List<AutocompleteSuggestion>();
 
-                            foreach (var child in choice.Items)
-                            {
-                                if (!(child is XmlSchemaElement childElement))
-                                    break;
-
-                                if (childElement.Name.StartsWith(element.Name))
-                                    suggestions.Add(new AutocompleteElementSuggestion(childElement));
-                            }
-
-                            return suggestions.ToArray();
-                        }
+                        if (canClose)
+                            suggestions.Add(new AutocompleteEndElementSuggestion { Name = currentElement.ElementName, IncludeSlash = true });
                     }
+
+                    return suggestions.ToArray();
                 }
                 else if (parser.State == ReaderState.AwaitingAttribute || parser.State == ReaderState.InAttributeName)
                 {
@@ -433,6 +462,12 @@ namespace MarkMpn.XmlSchemaAutocomplete
             {
                 length = txt.Text.Length;
                 return CompleteTextNode(elements, txt.Text);
+            }
+            else if (lastNode is PartialXmlEndElement endElement)
+            {
+                if (elements.TryPeek(out var currentElement) &&
+                    currentElement.ElementName.StartsWith(endElement.Name))
+                    return new AutocompleteSuggestion[] { new AutocompleteEndElementSuggestion { Name = currentElement.ElementName } };
             }
 
             return Array.Empty<AutocompleteSuggestion>();

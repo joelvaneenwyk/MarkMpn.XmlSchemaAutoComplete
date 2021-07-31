@@ -33,6 +33,13 @@ namespace MarkMpn.XmlSchemaAutocomplete
         public bool HasAttributes { get; set; }
     }
 
+    public class AutocompleteEndElementSuggestion : AutocompleteSuggestion
+    {
+        public string Name { get; set; }
+
+        public bool IncludeSlash { get; set; }
+    }
+
     public class AutocompleteAttributeSuggestion : AutocompleteSuggestion
     {
         public string Name { get; set; }
