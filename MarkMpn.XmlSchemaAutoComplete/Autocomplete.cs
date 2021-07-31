@@ -345,7 +345,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                     }
 
                     return suggestions
-                        .Where(a => a.Name.StartsWith(element.CurrentAttribute ?? ""))
+                        .Where(a => a.Name.StartsWith(element.CurrentAttribute ?? "") && !element.Attributes.ContainsKey(a.Name))
                         .ToArray<AutocompleteSuggestion>();
                 }
                 else if (parser.State == ReaderState.InAttributeEquals || parser.State == ReaderState.InAttributeValue)
