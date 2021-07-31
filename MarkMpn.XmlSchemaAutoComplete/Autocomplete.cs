@@ -306,22 +306,14 @@ namespace MarkMpn.XmlSchemaAutocomplete
                     if (elements.TryPeek(out var currentElement) &&
                         currentElement.Type is XmlSchemaComplexType complex)
                     {
-                        suggestions.AddRange(complex.Attributes
+                        suggestions.AddRange(complex.AttributeUses
+                            .Values
                             .Cast<XmlSchemaAttribute>()
                             .Select(a => new AutocompleteAttributeSuggestion { Name = a.Name })
                         );
 
-                        // Recurse through base types adding their attributes too
-                        var baseType = complex.BaseXmlSchemaType;
-                        while (baseType is XmlSchemaComplexType baseComplex)
-                        {
-                            suggestions.AddRange(baseComplex.Attributes.Cast<XmlSchemaAttribute>().Select(a => new AutocompleteAttributeSuggestion { Name = a.Name }));
-                            baseType = baseType.BaseXmlSchemaType;
-                        }
-
                         // Sort all the attributes by name
                         suggestions.Sort((x, y) => x.Name.CompareTo(y.Name));
-
                     }
 
                     // Special cases for xsi:type
@@ -355,27 +347,25 @@ namespace MarkMpn.XmlSchemaAutocomplete
                     if (elements.TryPeek(out var currentElement) &&
                         currentElement.Type is XmlSchemaComplexType complex)
                     {
-                        var attribute = complex.Attributes
+                        var attribute = complex.AttributeUses
+                            .Values
                             .Cast<XmlSchemaAttribute>()
                             .SingleOrDefault(a => a.Name == element.CurrentAttribute);
 
-                        // Recurse through base types adding their attributes too
-                        var baseType = complex.BaseXmlSchemaType;
-                        while (attribute == null && baseType is XmlSchemaComplexType baseComplex)
+                        if (attribute != null)
                         {
-                            attribute = baseComplex.Attributes
-                                .Cast<XmlSchemaAttribute>()
-                                .SingleOrDefault(a => a.Name == element.CurrentAttribute);
-
-                            baseType = baseType.BaseXmlSchemaType;
-                        }
-
-                        if (attribute != null && attribute.AttributeSchemaType.Content is XmlSchemaSimpleTypeRestriction attrValues)
-                        {
-                            suggestions.AddRange(attrValues.Facets
-                                .OfType<XmlSchemaEnumerationFacet>()
-                                .Select(value => new AutocompleteAttributeValueSuggestion { Value = value.Value })
-                                );
+                            if (attribute.AttributeSchemaType.TypeCode == XmlTypeCode.Boolean)
+                            {
+                                suggestions.Add(new AutocompleteAttributeValueSuggestion { Value = "false" });
+                                suggestions.Add(new AutocompleteAttributeValueSuggestion { Value = "true" });
+                            }
+                            else if (attribute.AttributeSchemaType.Content is XmlSchemaSimpleTypeRestriction attrValues)
+                            {
+                                suggestions.AddRange(attrValues.Facets
+                                    .OfType<XmlSchemaEnumerationFacet>()
+                                    .Select(value => new AutocompleteAttributeValueSuggestion { Value = value.Value })
+                                    );
+                            }
                         }
 
                         // Use the event callback to gather suggestions
@@ -391,7 +381,6 @@ namespace MarkMpn.XmlSchemaAutocomplete
                             }
 
                             AutocompleteAttributeValue(this, new AutocompleteAttributeValueEventArgs(suggestions, currentElement.Element, schemaTypes, schemaElements, attribute));
-                            return suggestions.ToArray<AutocompleteSuggestion>();
                         }
                     }
 

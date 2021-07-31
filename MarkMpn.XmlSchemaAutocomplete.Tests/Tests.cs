@@ -47,11 +47,11 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
 
         [Theory]
         [InlineData("<MyDoc ", "xmlns:xsi", "xsi:nil")]
-        [InlineData("<MyDoc><Members><p ", "xsi:nil", "xsi:type", "gender", "surname")]
-        [InlineData("<MyDoc><Members><c ", "xsi:nil", "gender", "surname")]
-        [InlineData("<MyDoc><Staff ", "xsi:type", "gender", "surname")]
+        [InlineData("<MyDoc><Members><p ", "xsi:nil", "xsi:type", "gender", "manager", "surname")]
+        [InlineData("<MyDoc><Members><c ", "xsi:nil", "gender", "manager", "surname")]
+        [InlineData("<MyDoc><Staff ", "xsi:type", "gender", "manager", "surname")]
         [InlineData("<MyDoc><Staff s", "surname")]
-        [InlineData("<MyDoc><Staff gender='Male' ", "xsi:type", "surname")]
+        [InlineData("<MyDoc><Staff gender='Male' ", "xsi:type", "manager", "surname")]
         [InlineData("<MyDoc><Staff f")]
         public void SuggestsAttributes(string input, params string[] attributes)
         {
@@ -66,6 +66,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         [InlineData("<MyDoc xmlns:xsi=\"", "http://www.w3.org/2001/XMLSchema-instance")]
         [InlineData("<MyDoc><Staff gender=", "Male", "Female")]
         [InlineData("<MyDoc><Staff gender=\"M", "Male")]
+        [InlineData("<MyDoc><Staff manager=\"", "false", "true")]
         public void SuggestsAttributeValues(string input, params string[] values)
         {
             var autocomplete = new Autocomplete<Root>();
@@ -147,7 +148,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
             var suggestions = autocomplete.GetSuggestions(input);
             var expected = new AutocompleteSuggestion[]
             {
-                input.EndsWith("=") ? (AutocompleteSuggestion) new AutocompleteAttributeValueSuggestion { Value = path } : new AutocompleteValueSuggestion { Value = path },
+                input.EndsWith("=") ? (AutocompleteSuggestion) new AutocompleteAttributeValueSuggestion { Value = path, IncludeQuotes = true } : new AutocompleteValueSuggestion { Value = path },
             };
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
