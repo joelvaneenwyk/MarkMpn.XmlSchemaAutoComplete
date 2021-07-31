@@ -9,6 +9,35 @@ using System.Xml.Serialization;
 
 namespace MarkMpn.XmlSchemaAutocomplete
 {
+#if !NETCOREAPP
+    static class StackExtensions
+    {
+        public static bool TryPeek<T>(this Stack<T> stack, out T result)
+        {
+            if (stack.Count == 0)
+            {
+                result = default(T);
+                return false;
+            }
+
+            result = stack.Peek();
+            return true;
+        }
+
+        public static bool TryPop<T>(this Stack<T> stack, out T result)
+        {
+            if (stack.Count == 0)
+            {
+                result = default(T);
+                return false;
+            }
+
+            result = stack.Pop();
+            return true;
+        }
+    }
+#endif
+
     public class Autocomplete
     {
         private readonly XmlSchemaSet _schemas;
