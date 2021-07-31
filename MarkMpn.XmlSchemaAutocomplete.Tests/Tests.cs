@@ -128,5 +128,27 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
 
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
+
+        [Theory]
+        [InlineData("<MyDoc><Staff><forename>", "MyDoc/Staff/forename")]
+        [InlineData("<MyDoc><Staff surname=", "MyDoc/Staff/@surname")]
+        public void CallbacksToCompleteValues(string input, string path)
+        {
+            var autocomplete = new Autocomplete<Root>();
+            autocomplete.AutocompleteValue += (sender, args) =>
+            {
+                args.Suggestions.Add(new AutocompleteValueSuggestion { Value = String.Join("/", args.SchemaElements.Reverse()) });
+            };
+            autocomplete.AutocompleteAttributeValue += (sender, args) =>
+            {
+                args.Suggestions.Add(new AutocompleteAttributeValueSuggestion { Value = String.Join("/", args.SchemaElements.Reverse()) + "/@" + args.Attribute.Name });
+            };
+            var suggestions = autocomplete.GetSuggestions(input);
+            var expected = new AutocompleteSuggestion[]
+            {
+                new AutocompleteValueSuggestion { Value = path },
+            };
+            Assert.Equal(expected, suggestions, new PropertyComparer());
+        }
     }
 }

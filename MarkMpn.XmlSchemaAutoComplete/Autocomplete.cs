@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
@@ -22,12 +23,13 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
         class ElementState
         {
-            public ElementState(XmlSchemaElement element)
+            public ElementState(XmlSchemaElement schemaElement, XmlElement element)
             {
-                ElementName = element.Name;
-                Type = element.ElementSchemaType;
-                IsNillable = element.IsNillable;
+                ElementName = schemaElement.Name;
+                Type = schemaElement.ElementSchemaType;
+                IsNillable = schemaElement.IsNillable;
                 ElementCount = new Dictionary<XmlSchemaObject, int>();
+                Element = element;
             }
 
             public string ElementName { get; }
@@ -41,7 +43,13 @@ namespace MarkMpn.XmlSchemaAutocomplete
             public int NextChildElement { get; set; }
 
             public int RepeatCount { get; set; }
+
+            public XmlElement Element { get; }
         }
+
+        public event EventHandler<AutocompleteValueEventArgs> AutocompleteValue;
+
+        public event EventHandler<AutocompleteAttributeValueEventArgs> AutocompleteAttributeValue;
 
         public AutocompleteSuggestion[] GetSuggestions(string text)
         {
@@ -50,6 +58,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
             PartialXmlElement firstElement = null;
             PartialXmlNode lastNode = null;
             var valid = true;
+            var document = new XmlDocument();
 
             while (parser.TryRead(out var node))
             {
@@ -76,7 +85,10 @@ namespace MarkMpn.XmlSchemaAutocomplete
                     {
                         if (rootElement.Name == elem.Name)
                         {
-                            elements.Push(new ElementState(rootElement));
+                            // Add the element to the document
+                            var newElement = CreateElement(document, elem);
+                            document.AppendChild(newElement);
+                            elements.Push(new ElementState(rootElement, newElement));
                             break;
                         }
                     }
@@ -125,7 +137,9 @@ namespace MarkMpn.XmlSchemaAutocomplete
                                     else
                                         currentElement.NextChildElement = i;
 
-                                    elements.Push(new ElementState(childElement));
+                                    var newElement = CreateElement(document, elem);
+                                    currentElement.Element.AppendChild(newElement);
+                                    elements.Push(new ElementState(childElement, newElement));
                                     foundMatch = true;
                                     break;
                                 }
@@ -164,7 +178,9 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
                                 if (childElement.Name == elem.Name)
                                 {
-                                    elements.Push(new ElementState(childElement));
+                                    var newElement = CreateElement(document, elem);
+                                    currentElement.Element.AppendChild(newElement);
+                                    elements.Push(new ElementState(childElement, newElement));
                                     foundMatch = true;
                                     break;
                                 }
@@ -297,12 +313,37 @@ namespace MarkMpn.XmlSchemaAutocomplete
                             .Cast<XmlSchemaAttribute>()
                             .SingleOrDefault(a => a.Name == element.CurrentAttribute);
 
+                        // Recurse through base types adding their attributes too
+                        var baseType = complex.BaseXmlSchemaType;
+                        while (attribute == null && baseType is XmlSchemaComplexType baseComplex)
+                        {
+                            attribute = baseComplex.Attributes
+                                .Cast<XmlSchemaAttribute>()
+                                .SingleOrDefault(a => a.Name == element.CurrentAttribute);
+                        }
+
                         if (attribute != null && attribute.AttributeSchemaType.Content is XmlSchemaSimpleTypeRestriction attrValues)
                         {
                             suggestions.AddRange(attrValues.Facets
                                 .OfType<XmlSchemaEnumerationFacet>()
                                 .Select(value => new AutocompleteAttributeValueSuggestion { Value = value.Value })
                                 );
+                        }
+
+                        // Use the event callback to gather suggestions
+                        if (AutocompleteAttributeValue != null && attribute != null)
+                        {
+                            var schemaTypes = new Stack<XmlSchemaType>();
+                            var schemaElements = new Stack<string>();
+
+                            foreach (var el in elements.Reverse())
+                            {
+                                schemaTypes.Push(el.Type);
+                                schemaElements.Push(el.ElementName);
+                            }
+
+                            AutocompleteAttributeValue(this, new AutocompleteAttributeValueEventArgs(suggestions, currentElement.Element, schemaTypes, schemaElements, attribute));
+                            return suggestions.ToArray<AutocompleteSuggestion>();
                         }
                     }
 
@@ -339,33 +380,102 @@ namespace MarkMpn.XmlSchemaAutocomplete
                 }
                 else if (parser.State == ReaderState.InText)
                 {
-                    if (elements.TryPeek(out var currentElement) &&
-                        currentElement.Type is XmlSchemaSimpleType simple &&
-                        simple.Content is XmlSchemaSimpleTypeRestriction attrValues)
-                    {
-                        return attrValues.Facets
-                            .OfType<XmlSchemaEnumerationFacet>()
-                            .Select(value => new AutocompleteValueSuggestion { Value = value.Value })
-                            .ToArray<AutocompleteSuggestion>();
-                    }
+                    return CompleteTextNode(elements, "");
                 }
             }
             else if (lastNode is PartialXmlText txt)
             {
-                if (elements.TryPeek(out var currentElement) &&
-                    currentElement.Type is XmlSchemaSimpleType simple &&
-                    simple.Content is XmlSchemaSimpleTypeRestriction attrValues)
-                {
-                    return attrValues.Facets
-                        .OfType<XmlSchemaEnumerationFacet>()
-                        .Where(value => value.Value.StartsWith(txt.Text.Trim()))
-                        .Select(value => new AutocompleteValueSuggestion { Value = value.Value })
-                        .ToArray<AutocompleteSuggestion>();
-                }
+                return CompleteTextNode(elements, txt.Text);
             }
 
             return Array.Empty<AutocompleteSuggestion>();
         }
+
+        private AutocompleteSuggestion[] CompleteTextNode(Stack<ElementState> elements, string text)
+        {
+            if (!elements.TryPeek(out var currentElement))
+                return Array.Empty<AutocompleteSuggestion>();
+            
+            if (currentElement.Type is XmlSchemaSimpleType simple &&
+                simple.Content is XmlSchemaSimpleTypeRestriction attrValues &&
+                attrValues.Facets.Count > 0)
+            {
+                return attrValues.Facets
+                    .OfType<XmlSchemaEnumerationFacet>()
+                    .Where(value => value.Value.StartsWith(text.Trim()))
+                    .Select(value => new AutocompleteValueSuggestion { Value = value.Value })
+                    .ToArray<AutocompleteSuggestion>();
+            }
+
+            // Use the event callback to gather suggestions
+            if (AutocompleteValue != null)
+            {
+                var suggestions = new List<AutocompleteValueSuggestion>();
+                var schemaTypes = new Stack<XmlSchemaType>();
+                var schemaElements = new Stack<string>();
+
+                foreach (var el in elements.Reverse())
+                {
+                    schemaTypes.Push(el.Type);
+                    schemaElements.Push(el.ElementName);
+                }
+
+                AutocompleteValue(this, new AutocompleteValueEventArgs(suggestions, currentElement.Element, schemaTypes, schemaElements));
+                return suggestions.ToArray<AutocompleteSuggestion>();
+            }
+
+            return Array.Empty<AutocompleteSuggestion>();
+        }
+
+        private XmlElement CreateElement(XmlDocument document, PartialXmlElement elem)
+        {
+            var newElement = document.CreateElement(elem.Name);
+
+            foreach (var attr in elem.Attributes)
+                newElement.SetAttribute(attr.Key, attr.Value);
+
+            return newElement;
+        }
+    }
+
+    public class AutocompleteValueEventArgs : EventArgs
+    {
+        internal AutocompleteValueEventArgs(List<AutocompleteValueSuggestion> suggestions, XmlElement element, Stack<XmlSchemaType> schemaTypes, Stack<string> schemaElements)
+        {
+            Suggestions = suggestions;
+            Element = element;
+            SchemaTypes = schemaTypes;
+            SchemaElements = schemaElements;
+        }
+
+        public List<AutocompleteValueSuggestion> Suggestions { get; }
+
+        public XmlElement Element { get; }
+
+        public Stack<XmlSchemaType> SchemaTypes { get; }
+
+        public Stack<string> SchemaElements { get; }
+    }
+
+    public class AutocompleteAttributeValueEventArgs : EventArgs
+    {
+        internal AutocompleteAttributeValueEventArgs(List<AutocompleteAttributeValueSuggestion> suggestions, XmlElement element, Stack<XmlSchemaType> schemaTypes, Stack<string> schemaElements, XmlSchemaAttribute attribute)
+        {
+            Suggestions = suggestions;
+            Element = element;
+            SchemaTypes = schemaTypes;
+            SchemaElements = schemaElements;
+        }
+
+        public List<AutocompleteAttributeValueSuggestion> Suggestions { get; }
+
+        public XmlElement Element { get; }
+
+        public Stack<XmlSchemaType> SchemaTypes { get; }
+
+        public Stack<string> SchemaElements { get; }
+
+        public XmlSchemaAttribute Attribute { get; }
     }
 
     public class Autocomplete<T> : Autocomplete
