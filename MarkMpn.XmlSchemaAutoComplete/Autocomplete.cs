@@ -241,7 +241,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                         return _schemas.GlobalElements.Values
                             .Cast<XmlSchemaElement>()
                             .Where(e => e.Name.StartsWith(element.Name))
-                            .Select(e => new AutocompleteElementSuggestion { Name = e.Name })
+                            .Select(e => new AutocompleteElementSuggestion(e))
                             .ToArray<AutocompleteSuggestion>();
                     }
 
@@ -262,13 +262,13 @@ namespace MarkMpn.XmlSchemaAutocomplete
                                             break;
 
                                         if (childElement.Name.StartsWith(element.Name))
-                                            suggestions.Add(new AutocompleteElementSuggestion { Name = childElement.Name });
+                                            suggestions.Add(new AutocompleteElementSuggestion(childElement));
                                     }
                                 }
                                 else if (child is XmlSchemaElement childElement)
                                 {
                                     if (childElement.Name.StartsWith(element.Name))
-                                        suggestions.Add(new AutocompleteElementSuggestion { Name = childElement.Name });
+                                        suggestions.Add(new AutocompleteElementSuggestion(childElement));
 
                                     currentElement.ElementCount.TryGetValue(childElement, out var count);
                                     if (childElement.MinOccurs > count)
@@ -292,7 +292,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                                     break;
 
                                 if (childElement.Name.StartsWith(element.Name))
-                                    suggestions.Add(new AutocompleteElementSuggestion { Name = childElement.Name });
+                                    suggestions.Add(new AutocompleteElementSuggestion(childElement));
                             }
 
                             return suggestions.ToArray();

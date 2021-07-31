@@ -30,7 +30,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         {
             var autocomplete = new Autocomplete<Root>();
             var suggestions = autocomplete.GetSuggestions(input);
-            var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e }).ToArray<AutocompleteSuggestion>();
+            var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e, HasAttributes = e == "Staff" }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
 
@@ -41,7 +41,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         {
             var autocomplete = new Autocomplete<Root>();
             var suggestions = autocomplete.GetSuggestions(input);
-            var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e }).ToArray<AutocompleteSuggestion>();
+            var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e, HasAttributes = true }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
 
@@ -160,7 +160,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         {
             var autocomplete = new Autocomplete<Fetch>();
             var suggestions = autocomplete.GetSuggestions(input);
-            var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e }).ToArray<AutocompleteSuggestion>();
+            var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e, SelfClosing = e != "fetch" }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
     }

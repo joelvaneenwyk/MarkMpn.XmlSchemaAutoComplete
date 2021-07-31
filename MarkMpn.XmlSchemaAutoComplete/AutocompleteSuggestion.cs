@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Schema;
 
 namespace MarkMpn.XmlSchemaAutocomplete
 {
@@ -10,7 +11,26 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
     public class AutocompleteElementSuggestion : AutocompleteSuggestion
     {
+        internal AutocompleteElementSuggestion(XmlSchemaElement element)
+        {
+            Name = element.Name;
+
+            if (element.ElementSchemaType is XmlSchemaComplexType complex)
+            {
+                SelfClosing = complex.ContentType == XmlSchemaContentType.Empty;
+                HasAttributes = complex.AttributeUses.Count > 0;
+            }
+        }
+
+        public AutocompleteElementSuggestion()
+        {
+        }
+
         public string Name { get; set; }
+
+        public bool SelfClosing { get; set; }
+
+        public bool HasAttributes { get; set; }
     }
 
     public class AutocompleteAttributeSuggestion : AutocompleteSuggestion
