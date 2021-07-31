@@ -80,8 +80,10 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
         public event EventHandler<AutocompleteAttributeValueEventArgs> AutocompleteAttributeValue;
 
-        public AutocompleteSuggestion[] GetSuggestions(string text)
+        public AutocompleteSuggestion[] GetSuggestions(string text, out int length)
         {
+            length = 0;
+
             var parser = new PartialXmlReader(text);
             var elements = new Stack<ElementState>();
             PartialXmlElement firstElement = null;
@@ -235,6 +237,8 @@ namespace MarkMpn.XmlSchemaAutocomplete
             {
                 if (parser.State == ReaderState.InStartElement)
                 {
+                    length = element.Name.Length;
+
                     if (element == firstElement)
                     {
                         // Suggest possible root elements
@@ -301,6 +305,8 @@ namespace MarkMpn.XmlSchemaAutocomplete
                 }
                 else if (parser.State == ReaderState.AwaitingAttribute || parser.State == ReaderState.InAttributeName)
                 {
+                    length = element.CurrentAttribute?.Length ?? 0;
+
                     var suggestions = new List<AutocompleteAttributeSuggestion>();
 
                     if (elements.TryPeek(out var currentElement) &&
@@ -342,6 +348,9 @@ namespace MarkMpn.XmlSchemaAutocomplete
                 }
                 else if (parser.State == ReaderState.InAttributeEquals || parser.State == ReaderState.InAttributeValue)
                 {
+                    if (parser.State == ReaderState.InAttributeValue)
+                        length = element.Attributes[element.CurrentAttribute].Length;
+
                     var suggestions = new List<AutocompleteAttributeValueSuggestion>();
 
                     if (elements.TryPeek(out var currentElement) &&
@@ -422,6 +431,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
             }
             else if (lastNode is PartialXmlText txt)
             {
+                length = txt.Text.Length;
                 return CompleteTextNode(elements, txt.Text);
             }
 

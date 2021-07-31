@@ -16,7 +16,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         public void SuggestsAllPossibleRootElements(string input, params string[] elements)
         {
             var autocomplete = new Autocomplete<Root>();
-            var suggestions = autocomplete.GetSuggestions(input);
+            var suggestions = autocomplete.GetSuggestions(input, out _);
             var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
@@ -29,7 +29,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         public void SuggestsAllPossibleChildElements(string input, params string[] elements)
         {
             var autocomplete = new Autocomplete<Root>();
-            var suggestions = autocomplete.GetSuggestions(input);
+            var suggestions = autocomplete.GetSuggestions(input, out _);
             var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e, HasAttributes = e == "Staff" }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
@@ -40,7 +40,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         public void SuggestsArrayMembers(string input, params string[] elements)
         {
             var autocomplete = new Autocomplete<Root>();
-            var suggestions = autocomplete.GetSuggestions(input);
+            var suggestions = autocomplete.GetSuggestions(input, out _);
             var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e, HasAttributes = true }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
@@ -56,7 +56,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         public void SuggestsAttributes(string input, params string[] attributes)
         {
             var autocomplete = new Autocomplete<Root>();
-            var suggestions = autocomplete.GetSuggestions(input);
+            var suggestions = autocomplete.GetSuggestions(input, out _);
             var expected = attributes.Select(e => new AutocompleteAttributeSuggestion { Name = e }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
@@ -70,7 +70,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         public void SuggestsAttributeValues(string input, params string[] values)
         {
             var autocomplete = new Autocomplete<Root>();
-            var suggestions = autocomplete.GetSuggestions(input);
+            var suggestions = autocomplete.GetSuggestions(input, out _);
             var expected = values.Select(e => new AutocompleteAttributeValueSuggestion { Value = e, IncludeQuotes = input.EndsWith("=") }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
@@ -81,7 +81,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         public void SuggestsElementEnumValues(string input, params string[] values)
         {
             var autocomplete = new Autocomplete<Recursive>();
-            var suggestions = autocomplete.GetSuggestions(input);
+            var suggestions = autocomplete.GetSuggestions(input, out _);
             var expected = values.Select(e => new AutocompleteValueSuggestion { Value = e }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
@@ -96,7 +96,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         public void SuggestsRecursiveElements(string input, params string[] elements)
         {
             var autocomplete = new Autocomplete<Recursive>();
-            var suggestions = autocomplete.GetSuggestions(input);
+            var suggestions = autocomplete.GetSuggestions(input, out _);
             var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
@@ -107,7 +107,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         public void SuggestsNillableAttribute(string input, bool nillableExpected)
         {
             var autocomplete = new Autocomplete<Recursive>();
-            var suggestions = autocomplete.GetSuggestions(input);
+            var suggestions = autocomplete.GetSuggestions(input, out _);
 
             if (nillableExpected)
                 Assert.Contains(suggestions.OfType<AutocompleteAttributeSuggestion>(), a => a.Name == "xsi:nil");
@@ -120,7 +120,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         public void SuggestsBooleanValues(string input)
         {
             var autocomplete = new Autocomplete<Recursive>();
-            var suggestions = autocomplete.GetSuggestions(input);
+            var suggestions = autocomplete.GetSuggestions(input, out _);
 
             var expected = new AutocompleteSuggestion[]
             {
@@ -145,7 +145,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
             {
                 args.Suggestions.Add(new AutocompleteAttributeValueSuggestion { Value = String.Join("/", args.SchemaElements.Reverse()) + "/@" + args.Attribute.Name });
             };
-            var suggestions = autocomplete.GetSuggestions(input);
+            var suggestions = autocomplete.GetSuggestions(input, out _);
             var expected = new AutocompleteSuggestion[]
             {
                 input.EndsWith("=") ? (AutocompleteSuggestion) new AutocompleteAttributeValueSuggestion { Value = path, IncludeQuotes = true } : new AutocompleteValueSuggestion { Value = path },
@@ -160,7 +160,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         public void SequenceOfChoice(string input, params string[] elements)
         {
             var autocomplete = new Autocomplete<Fetch>();
-            var suggestions = autocomplete.GetSuggestions(input);
+            var suggestions = autocomplete.GetSuggestions(input, out _);
             var expected = elements.Select(e => new AutocompleteElementSuggestion { Name = e, SelfClosing = e != "fetch" }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
