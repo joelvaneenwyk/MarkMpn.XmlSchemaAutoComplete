@@ -451,16 +451,26 @@ namespace MarkMpn.XmlSchemaAutocomplete
         {
             if (!elements.TryPeek(out var currentElement))
                 return Array.Empty<AutocompleteSuggestion>();
-            
-            if (currentElement.Type is XmlSchemaSimpleType simple &&
-                simple.Content is XmlSchemaSimpleTypeRestriction attrValues &&
-                attrValues.Facets.Count > 0)
+
+            if (currentElement.Type is XmlSchemaSimpleType simple)
             {
-                return attrValues.Facets
-                    .OfType<XmlSchemaEnumerationFacet>()
-                    .Where(value => value.Value.StartsWith(text.Trim()))
-                    .Select(value => new AutocompleteValueSuggestion { Value = value.Value })
-                    .ToArray<AutocompleteSuggestion>();
+                if (simple.TypeCode == XmlTypeCode.Boolean)
+                {
+                    return new[] { "false", "true" }
+                        .Where(value => value.StartsWith(text.Trim()))
+                        .Select(value => new AutocompleteValueSuggestion { Value = value })
+                        .ToArray<AutocompleteSuggestion>();
+                }
+
+                if (simple.Content is XmlSchemaSimpleTypeRestriction attrValues &&
+                    attrValues.Facets.Count > 0)
+                {
+                    return attrValues.Facets
+                        .OfType<XmlSchemaEnumerationFacet>()
+                        .Where(value => value.Value.StartsWith(text.Trim()))
+                        .Select(value => new AutocompleteValueSuggestion { Value = value.Value })
+                        .ToArray<AutocompleteSuggestion>();
+                }
             }
 
             // Use the event callback to gather suggestions
