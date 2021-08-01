@@ -35,7 +35,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
             menu.Font = new Font(scintilla.Styles[Style.Default].Font, scintilla.Styles[Style.Default].SizeF);
             //menu.ImageList = _images;
             menu.MaximumSize = new Size(1000, menu.MaximumSize.Height);
-            menu.SearchPattern = "[\\w<\"']";
+            menu.SearchPattern = "[\\w<\"'\\-:/]";
 
             menu.SetAutocompleteItems(new XmlSchemaAutocompleteItemSource(autocomplete, scintilla));
 
