@@ -43,6 +43,28 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
 
             const string indent = "  ";
 
+            var skipQuote = false;
+
+            scintilla.InsertCheck += (s, e) =>
+            {
+                skipQuote = false;
+
+                if (e.Text.EndsWith("\"") && e.Position < scintilla.TextLength && scintilla.GetCharAt(e.Position) == '"')
+                {
+                    e.Text = e.Text.Substring(0, e.Text.Length - 1);
+                    skipQuote = true;
+                }
+            };
+
+            scintilla.KeyUp += (s, e) =>
+            {
+                if (skipQuote)
+                {
+                    scintilla.SelectionStart++;
+                    skipQuote = false;
+                }
+            };
+
             scintilla.KeyDown += (s, e) =>
             {
                 if (e.KeyCode == Keys.Back && scintilla.SelectedText == String.Empty)
@@ -117,6 +139,26 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
 
                     e.Handled = true;
                     e.SuppressKeyPress = true;
+                }
+
+                if (e.KeyCode == Keys.Oemplus)
+                {
+                    // Auto-add quotes when pressing equals
+                    var parser = new PartialXmlReader(scintilla.GetTextRange(0, scintilla.SelectionStart) + "=");
+                    PartialXmlNode lastNode = null;
+                    while (parser.TryRead(out var node))
+                        lastNode = node;
+
+                    if (parser.State == ReaderState.InAttributeEquals)
+                    {
+                        var pos = scintilla.SelectionStart;
+                        scintilla.ReplaceSelection("=\"\"");
+                        scintilla.SelectionStart = pos + 2;
+                        scintilla.SelectionEnd = pos + 2;
+
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                    }
                 }
             };
         }
