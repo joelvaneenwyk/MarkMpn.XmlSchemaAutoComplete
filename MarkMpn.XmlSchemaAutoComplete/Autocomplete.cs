@@ -447,7 +447,10 @@ namespace MarkMpn.XmlSchemaAutocomplete
                     }
 
                     foreach (var suggestion in suggestions)
+                    {
                         suggestion.IncludeQuotes = parser.State == ReaderState.InAttributeEquals;
+                        suggestion.QuoteChar = parser.State == ReaderState.InAttributeEquals ? '"' : text[text.Length - element.Attributes[element.CurrentAttribute].Length - 1];
+                    }
 
                     return suggestions
                         .Where(a => a.Value.StartsWith(element.Attributes[element.CurrentAttribute] ?? ""))

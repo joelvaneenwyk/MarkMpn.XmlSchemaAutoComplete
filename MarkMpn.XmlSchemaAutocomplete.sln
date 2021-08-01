@@ -7,8 +7,15 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MarkMpn.XmlSchemaAutocomple
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarkMpn.XmlSchemaAutocomplete.Tests", "MarkMpn.XmlSchemaAutocomplete.Tests\MarkMpn.XmlSchemaAutocomplete.Tests.csproj", "{9596CB58-AAA1-4D0F-8500-776784F8AFF5}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MarkMpn.XmlSchemaAutocomplete.Scintilla", "MarkMpn.XmlSchemaAutocomplete.Scintilla\MarkMpn.XmlSchemaAutocomplete.Scintilla.shproj", "{4C497B9C-B9DD-4B3D-8ECC-C504AFCADD65}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp", "MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp\MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp.csproj", "{12E2DDB3-62FD-49C3-9240-7D4D10C6A6A6}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		MarkMpn.XmlSchemaAutocomplete.Scintilla\MarkMpn.XmlSchemaAutocomplete.Scintilla.projitems*{12e2ddb3-62fd-49c3-9240-7d4d10c6a6a6}*SharedItemsImports = 4
+		MarkMpn.XmlSchemaAutoComplete\MarkMpn.XmlSchemaAutoComplete.projitems*{12e2ddb3-62fd-49c3-9240-7d4d10c6a6a6}*SharedItemsImports = 4
+		MarkMpn.XmlSchemaAutocomplete.Scintilla\MarkMpn.XmlSchemaAutocomplete.Scintilla.projitems*{4c497b9c-b9dd-4b3d-8ecc-c504afcadd65}*SharedItemsImports = 13
 		MarkMpn.XmlSchemaAutoComplete\MarkMpn.XmlSchemaAutoComplete.projitems*{9596cb58-aaa1-4d0f-8500-776784f8aff5}*SharedItemsImports = 5
 		MarkMpn.XmlSchemaAutoComplete\MarkMpn.XmlSchemaAutoComplete.projitems*{ce3b0f1b-1668-4ac3-a7ad-fe1872c6bcc3}*SharedItemsImports = 13
 	EndGlobalSection
@@ -21,6 +28,10 @@ Global
 		{9596CB58-AAA1-4D0F-8500-776784F8AFF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9596CB58-AAA1-4D0F-8500-776784F8AFF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9596CB58-AAA1-4D0F-8500-776784F8AFF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12E2DDB3-62FD-49C3-9240-7D4D10C6A6A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12E2DDB3-62FD-49C3-9240-7D4D10C6A6A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12E2DDB3-62FD-49C3-9240-7D4D10C6A6A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12E2DDB3-62FD-49C3-9240-7D4D10C6A6A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

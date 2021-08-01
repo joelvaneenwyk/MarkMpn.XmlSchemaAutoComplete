@@ -50,6 +50,8 @@ namespace MarkMpn.XmlSchemaAutocomplete
         public string Value { get; set; }
 
         public bool IncludeQuotes { get; set; }
+
+        public char QuoteChar { get; set; }
     }
 
     public class AutocompleteValueSuggestion : AutocompleteSuggestion
