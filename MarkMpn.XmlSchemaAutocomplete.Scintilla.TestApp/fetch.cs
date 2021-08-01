@@ -13,15 +13,19 @@
 // 
 namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
 {
+    using System.ComponentModel;
     using System.Xml.Serialization;
 
 
-    /// <remarks/>
+    /// <remarks>
+    /// Test docs
+    /// </remarks>
+    [Description("desc attr")]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
     public partial class condition
     {
@@ -96,7 +100,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public partial class conditionValue
     {
 
@@ -253,7 +257,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     [System.Xml.Serialization.XmlRootAttribute("all-attributes", Namespace = "", IsNullable = false)]
     public partial class allattributes
     {
@@ -456,7 +460,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public enum filterType
     {
 
@@ -958,7 +962,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public enum FetchTypeMapping
     {
 
@@ -972,7 +976,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public enum FetchTypeOutputformat
     {
 
@@ -1002,7 +1006,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
     public partial class savedquery
     {
@@ -1073,7 +1077,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public partial class savedqueryFetchxml
     {
 
@@ -1086,7 +1090,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public partial class savedqueryColumnsetxml
     {
 
@@ -1099,7 +1103,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public partial class savedqueryColumnsetxmlColumnset
     {
 
@@ -1134,7 +1138,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public partial class savedqueryColumnsetxmlColumnsetColumn
     {
 
@@ -1160,7 +1164,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public partial class savedqueryColumnsetxmlColumnsetFilter
     {
 
@@ -1194,7 +1198,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public partial class savedqueryColumnsetxmlColumnsetFilterCondition
     {
 
@@ -1240,7 +1244,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public partial class savedqueryLayoutxml
     {
 
@@ -1253,7 +1257,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public partial class savedqueryLayoutxmlGrid
     {
 
@@ -1302,7 +1306,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public partial class savedqueryLayoutxmlGridRow
     {
 
@@ -1332,7 +1336,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    [System.Xml.Serialization.XmlTypeAttribute()]
     public partial class savedqueryLayoutxmlGridRowCell
     {
 

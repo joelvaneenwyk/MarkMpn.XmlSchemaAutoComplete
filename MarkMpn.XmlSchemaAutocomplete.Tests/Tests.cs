@@ -56,7 +56,16 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         public void SuggestsAttributes(string input, params string[] attributes)
         {
             var autocomplete = new Autocomplete<Root>();
+            autocomplete.UsesXsi = true;
             var suggestions = autocomplete.GetSuggestions(input, out _);
+
+            // Some descriptions are auto-generated. We're not testing them, so strip them for readability
+            foreach (var suggestion in suggestions)
+            {
+                suggestion.Title = null;
+                suggestion.Description = null;
+            }
+
             var expected = attributes.Select(e => new AutocompleteAttributeSuggestion { Name = e }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
@@ -71,7 +80,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         {
             var autocomplete = new Autocomplete<Root>();
             var suggestions = autocomplete.GetSuggestions(input, out _);
-            var expected = values.Select(e => new AutocompleteAttributeValueSuggestion { Value = e, IncludeQuotes = input.EndsWith("=") }).ToArray<AutocompleteSuggestion>();
+            var expected = values.Select(e => new AutocompleteAttributeValueSuggestion { Value = e, IncludeQuotes = input.EndsWith("="), QuoteChar = '"' }).ToArray<AutocompleteSuggestion>();
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }
 
@@ -124,8 +133,8 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
 
             var expected = new AutocompleteSuggestion[]
             {
-                new AutocompleteAttributeValueSuggestion { Value = "true", IncludeQuotes = input.EndsWith("=") },
-                new AutocompleteAttributeValueSuggestion { Value = "false", IncludeQuotes = input.EndsWith("=") },
+                new AutocompleteAttributeValueSuggestion { Value = "true", IncludeQuotes = input.EndsWith("="), QuoteChar = '"' },
+                new AutocompleteAttributeValueSuggestion { Value = "false", IncludeQuotes = input.EndsWith("="), QuoteChar = '"' },
             };
 
             Assert.Equal(expected, suggestions, new PropertyComparer());
@@ -148,7 +157,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
             var suggestions = autocomplete.GetSuggestions(input, out _);
             var expected = new AutocompleteSuggestion[]
             {
-                input.EndsWith("=") ? (AutocompleteSuggestion) new AutocompleteAttributeValueSuggestion { Value = path, IncludeQuotes = true } : new AutocompleteValueSuggestion { Value = path },
+                input.EndsWith("=") ? (AutocompleteSuggestion) new AutocompleteAttributeValueSuggestion { Value = path, IncludeQuotes = true, QuoteChar = '"' } : new AutocompleteValueSuggestion { Value = path },
             };
             Assert.Equal(expected, suggestions, new PropertyComparer());
         }

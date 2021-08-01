@@ -709,12 +709,12 @@ namespace AutocompleteMenuNS
             int startPos = tb.SelectionStart;
             //go forward
             int i = startPos;
-            while (i >= 0 && i < text.Length)
+            /* (i >= 0 && i < text.Length)
             {
                 if (!regex.IsMatch(text[i].ToString()))
                     break;
                 i++;
-            }
+            }*/
             result.End = i;
 
             //go backward

@@ -26,6 +26,8 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla.TestApp
         private void InitializeAutocomplete()
         {
             var autocomplete = new Autocomplete<FetchType>();
+            autocomplete.AddTypeDescription<condition>("Filter Condition", "Filters the data based on a particular attribute");
+            autocomplete.AddMemberDescription<FetchType>(nameof(FetchType.top), "Top Count", "Limits the number of records returned");
 
             var menu = new AutocompleteMenu();
             menu.MinFragmentLength = 0;

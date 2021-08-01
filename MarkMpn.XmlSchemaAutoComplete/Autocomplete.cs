@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Schema;
@@ -50,22 +51,131 @@ namespace MarkMpn.XmlSchemaAutocomplete
             _schemas = schemas;
         }
 
+        public bool UsesXsi { get; set; }
+
+        public void AddTypeDescription(string typeName, string title, string description)
+        {
+            var type = _schemas.Schemas()
+                .Cast<XmlSchema>()
+                .SelectMany(schema => schema.SchemaTypes.Values.Cast<XmlSchemaType>())
+                .FirstOrDefault(t => t.Name == typeName);
+
+            if (type == null)
+                throw new ArgumentOutOfRangeException(nameof(typeName), "Unknown type name " + typeName);
+
+            if (type.Annotation != null)
+                throw new ArgumentOutOfRangeException(nameof(typeName), "Type already has annotation");
+
+            var doc = new XmlDocument();
+            var h1 = doc.CreateElement("h1");
+            h1.InnerText = title;
+            var p = doc.CreateElement("p");
+            p.InnerText = description;
+
+            type.Annotation = new XmlSchemaAnnotation();
+            type.Annotation.Items.Add(new XmlSchemaDocumentation
+            {
+                Markup = new XmlNode[]
+                {
+                    h1,
+                    p
+                }
+            });
+        }
+
+        public void AddElementDescription(string typeName, string elementName, string title, string description)
+        {
+            var type = _schemas.Schemas()
+                .Cast<XmlSchema>()
+                .SelectMany(schema => schema.SchemaTypes.Values.Cast<XmlSchemaType>())
+                .FirstOrDefault(t => t.Name == typeName);
+
+            if (type == null)
+                throw new ArgumentOutOfRangeException(nameof(typeName), "Unknown type name " + typeName);
+
+            if (!(type is XmlSchemaComplexType complex))
+                throw new ArgumentOutOfRangeException(nameof(typeName), "Type is not a complex type");
+
+            XmlSchemaElement element;
+
+            if (complex.Particle is XmlSchemaSequence sequence)
+                element = sequence.Items.OfType<XmlSchemaElement>().SingleOrDefault(el => el.Name == elementName);
+            else if (complex.Particle is XmlSchemaChoice choice)
+                element = choice.Items.OfType<XmlSchemaElement>().SingleOrDefault(el => el.Name == elementName);
+            else
+                throw new ArgumentOutOfRangeException(nameof(typeName), "Type must be a sequence or choice");
+
+            if (element == null)
+                throw new ArgumentOutOfRangeException(nameof(elementName), "Unknown element name " + elementName);
+
+            var doc = new XmlDocument();
+            var h1 = doc.CreateElement("h1");
+            h1.InnerText = title;
+            var p = doc.CreateElement("p");
+            p.InnerText = description;
+
+            element.Annotation = new XmlSchemaAnnotation();
+            element.Annotation.Items.Add(new XmlSchemaDocumentation
+            {
+                Markup = new XmlNode[]
+                {
+                    h1,
+                    p
+                }
+            });
+        }
+
+        public void AddAttributeDescription(string typeName, string attributeName, string title, string description)
+        {
+            var type = _schemas.Schemas()
+                .Cast<XmlSchema>()
+                .SelectMany(schema => schema.SchemaTypes.Values.Cast<XmlSchemaType>())
+                .FirstOrDefault(t => t.Name == typeName);
+
+            if (type == null)
+                throw new ArgumentOutOfRangeException(nameof(typeName), "Unknown type name " + typeName);
+
+            if (!(type is XmlSchemaComplexType complex))
+                throw new ArgumentOutOfRangeException(nameof(typeName), "Type is not a complex type");
+
+            var attr = complex.AttributeUses.Values.OfType<XmlSchemaAttribute>().SingleOrDefault(el => el.Name == attributeName);
+
+            if (attr == null)
+                throw new ArgumentOutOfRangeException(nameof(attributeName), "Unknown attribute name " + attributeName);
+
+            var doc = new XmlDocument();
+            var h1 = doc.CreateElement("h1");
+            h1.InnerText = title;
+            var p = doc.CreateElement("p");
+            p.InnerText = description;
+
+            attr.Annotation = new XmlSchemaAnnotation();
+            attr.Annotation.Items.Add(new XmlSchemaDocumentation
+            {
+                Markup = new XmlNode[]
+                {
+                    h1,
+                    p
+                }
+            });
+        }
+
         class ElementState
         {
             public ElementState(XmlSchemaElement schemaElement, XmlElement element)
             {
-                ElementName = schemaElement.Name;
-                Type = schemaElement.ElementSchemaType;
-                IsNillable = schemaElement.IsNillable;
+                SchemaElement = schemaElement;
                 ElementCount = new Dictionary<XmlSchemaObject, int>();
                 Element = element;
             }
 
-            public string ElementName { get; }
+            public XmlSchemaElement SchemaElement { get; }
 
-            public XmlSchemaType Type { get; }
+            public string ElementName => SchemaElement.Name;
 
-            public bool IsNillable { get; }
+            public XmlSchemaType Type => SchemaElement.ElementSchemaType;
+
+            public bool IsNillable => SchemaElement.IsNillable;
 
             public Dictionary<XmlSchemaObject, int> ElementCount { get; }
 
@@ -327,7 +437,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                         }
 
                         if (canClose)
-                            suggestions.Add(new AutocompleteEndElementSuggestion { Name = currentElement.ElementName, IncludeSlash = true });
+                            suggestions.Add(new AutocompleteEndElementSuggestion(currentElement.SchemaElement) { IncludeSlash = true });
                     }
 
                     return suggestions.ToArray();
@@ -344,7 +454,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                         suggestions.AddRange(complex.AttributeUses
                             .Values
                             .Cast<XmlSchemaAttribute>()
-                            .Select(a => new AutocompleteAttributeSuggestion { Name = a.Name })
+                            .Select(a => new AutocompleteAttributeSuggestion(a))
                         );
 
                         // Sort all the attributes by name
@@ -356,19 +466,19 @@ namespace MarkMpn.XmlSchemaAutocomplete
                     // If this type has derived types, offer them too
                     if (_schemas.Schemas().Cast<XmlSchema>().Any(schema => schema.SchemaTypes.Values.OfType<XmlSchemaComplexType>().Any(type => type.BaseXmlSchemaType == currentElement.Type)))
                     {
-                        suggestions.Insert(0, new AutocompleteAttributeSuggestion { Name = "xsi:type" });
+                        suggestions.Insert(0, new AutocompleteAttributeSuggestion { Name = "xsi:type", Title = "Type", Description = "Indicates the derived type to use for this element" });
                     }
 
                     // Offer xsi:nil for nillable types
                     if (currentElement.IsNillable)
                     {
-                        suggestions.Insert(0, new AutocompleteAttributeSuggestion { Name = "xsi:nil" });
+                        suggestions.Insert(0, new AutocompleteAttributeSuggestion { Name = "xsi:nil", Title = "Nil", Description = "Indicates that this element has no value" });
                     }
 
                     // If this is the root element and we have any extension types, offer the xmlns:xsi attribute
-                    if (element == firstElement && _schemas.Schemas().Cast<XmlSchema>().Any(schema => schema.SchemaTypes.Values.OfType<XmlSchemaComplexType>().Any(type => type.BaseXmlSchemaType != null)))
+                    if (UsesXsi && element == firstElement && _schemas.Schemas().Cast<XmlSchema>().Any(schema => schema.SchemaTypes.Values.OfType<XmlSchemaComplexType>().Any(type => type.BaseXmlSchemaType != null)))
                     {
-                        suggestions.Insert(0, new AutocompleteAttributeSuggestion { Name = "xmlns:xsi" });
+                        suggestions.Insert(0, new AutocompleteAttributeSuggestion { Name = "xmlns:xsi", Title = "XML Schema Instance", Description = "Includes the XML Schema Instance namespace" });
                     }
 
                     return suggestions
@@ -401,7 +511,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                             {
                                 suggestions.AddRange(attrValues.Facets
                                     .OfType<XmlSchemaEnumerationFacet>()
-                                    .Select(value => new AutocompleteAttributeValueSuggestion { Value = value.Value })
+                                    .Select(value => new AutocompleteAttributeValueSuggestion(value))
                                     );
                             }
                         }
@@ -436,7 +546,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                                     .Values
                                     .OfType<XmlSchemaComplexType>()
                                     .Where(type => type.BaseXmlSchemaType == currentElement.Type)
-                                    .Select(type => new AutocompleteAttributeValueSuggestion { Value = type.Name })
+                                    .Select(type => new AutocompleteAttributeValueSuggestion(type))
                             )
                         );
                     }
@@ -470,7 +580,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
             {
                 if (elements.TryPeek(out var currentElement) &&
                     currentElement.ElementName.StartsWith(endElement.Name))
-                    return new AutocompleteSuggestion[] { new AutocompleteEndElementSuggestion { Name = currentElement.ElementName } };
+                    return new AutocompleteSuggestion[] { new AutocompleteEndElementSuggestion(currentElement.SchemaElement) };
             }
 
             return Array.Empty<AutocompleteSuggestion>();
@@ -516,7 +626,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                     return attrValues.Facets
                         .OfType<XmlSchemaEnumerationFacet>()
                         .Where(value => value.Value.StartsWith(text.Trim()))
-                        .Select(value => new AutocompleteValueSuggestion { Value = value.Value })
+                        .Select(value => new AutocompleteValueSuggestion(value))
                         .ToArray<AutocompleteSuggestion>();
                 }
             }
@@ -593,6 +703,13 @@ namespace MarkMpn.XmlSchemaAutocomplete
         public XmlSchemaAttribute Attribute { get; }
     }
 
+    public class AutocompleteDocumentation
+    {
+        public string Title { get; set; }
+
+        public string Description { get; set; }
+    }
+
     public class Autocomplete<T> : Autocomplete
     {
         public Autocomplete() : base(GetSchemaSet())
@@ -617,6 +734,36 @@ namespace MarkMpn.XmlSchemaAutocomplete
                 schemaSet.Add(schema);
 
             return schemaSet;
+        }
+
+        public void AddTypeDescription<TObject>(string title, string description)
+        {
+            var schemas = new XmlSchemas();
+            var exporter = new XmlSchemaExporter(schemas);
+            var mapping = new XmlReflectionImporter().ImportTypeMapping(typeof(TObject));
+            exporter.ExportTypeMapping(mapping);
+
+            base.AddTypeDescription(mapping.XsdTypeName, title, description);
+        }
+
+        public void AddMemberDescription<TObject>(string memberName, string title, string description)
+        {
+            var member = typeof(TObject).GetMember(memberName).SingleOrDefault();
+
+            if (member == null)
+                throw new ArgumentOutOfRangeException(nameof(memberName), "Unknown member " + memberName);
+
+            var attr = member.GetCustomAttributes(typeof(XmlAttributeAttribute));
+
+            var schemas = new XmlSchemas();
+            var exporter = new XmlSchemaExporter(schemas);
+            var mapping = new XmlReflectionImporter().ImportTypeMapping(typeof(TObject));
+            exporter.ExportTypeMapping(mapping);
+
+            if (attr.Any())
+                AddAttributeDescription(mapping.XsdTypeName, memberName, title, description);
+            else
+                AddElementDescription(mapping.XsdTypeName, memberName, title, description);
         }
     }
 }
