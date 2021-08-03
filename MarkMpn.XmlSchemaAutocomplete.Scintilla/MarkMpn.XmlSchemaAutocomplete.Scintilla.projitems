@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AutocompleteItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AutocompleteItems.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ScintillaXmlHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)XmlSchemaAutocompleteItemSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AutocompleteListView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AutocompleteMenu.cs" />
