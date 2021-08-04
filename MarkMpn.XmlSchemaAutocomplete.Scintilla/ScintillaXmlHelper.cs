@@ -59,7 +59,9 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla
             if (e.Text.EndsWith("\"") && e.Position < scintilla.TextLength && scintilla.GetCharAt(e.Position) == '"')
             {
                 e.Text = e.Text.Substring(0, e.Text.Length - 1);
-                _skipQuote = true;
+
+                if (e.Text == "")
+                    _skipQuote = true;
             }
         }
 
@@ -155,8 +157,8 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla
                 {
                     var pos = scintilla.SelectionStart;
                     scintilla.ReplaceSelection("=\"\"");
-                    scintilla.SelectionStart = pos + 2;
-                    scintilla.SelectionEnd = pos + 2;
+                    scintilla.SelectionStart = pos + 1;
+                    scintilla.SelectionEnd = pos + 1;
 
                     e.Handled = true;
                     e.SuppressKeyPress = true;
