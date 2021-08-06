@@ -23,7 +23,6 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla
             _menu.AppearInterval = 100;
             _menu.TargetControlWrapper = new ScintillaWrapper(scintilla);
             _menu.Font = new Font(scintilla.Styles[Style.Default].Font, scintilla.Styles[Style.Default].SizeF);
-            //_menu.ImageList = _images;
             _menu.MaximumSize = new Size(1000, _menu.MaximumSize.Height);
             _menu.SearchPattern = "[\\w<\"'\\-:/]";
 
@@ -31,6 +30,8 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla
 
             _scintilla = scintilla;
         }
+
+        public AutocompleteMenu Menu => _menu;
 
         public void Attach()
         {
