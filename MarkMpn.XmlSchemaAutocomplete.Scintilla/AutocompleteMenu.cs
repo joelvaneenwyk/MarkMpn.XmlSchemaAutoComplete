@@ -834,6 +834,12 @@ namespace AutocompleteMenuNS
             //replace text of fragment
             fragment.Text = newText;
             fragment.TargetWrapper.TargetControl.Focus();
+
+            if (newText.EndsWith("=\"\""))
+            {
+                fragment.TargetWrapper.SelectionStart = fragment.TargetWrapper.SelectionStart + fragment.TargetWrapper.SelectionLength - 1;
+                fragment.TargetWrapper.SelectionLength = 0;
+            }
         }
 
         internal void OnSelecting(SelectingEventArgs args)

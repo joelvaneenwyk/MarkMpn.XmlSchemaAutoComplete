@@ -25,9 +25,9 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla
             foreach (var suggestion in suggestions)
             {
                 if (suggestion is AutocompleteElementSuggestion el)
-                    yield return new XmlSchemaAutocompleteItem("<" + el.Name + (el.SelfClosing ? " />" : ""), 0, el.Name, suggestion.Title, suggestion.Description);
+                    yield return new XmlSchemaAutocompleteItem("<" + el.Name + (el.SelfClosing && !el.HasAttributes ? " />" : ""), 0, el.Name, suggestion.Title, suggestion.Description);
                 else if (suggestion is AutocompleteAttributeSuggestion at)
-                    yield return new XmlSchemaAutocompleteItem(at.Name, 1, at.Name, suggestion.Title, suggestion.Description);
+                    yield return new XmlSchemaAutocompleteItem(at.Name + "=\"\"", 1, at.Name, suggestion.Title, suggestion.Description);
                 else if (suggestion is AutocompleteAttributeValueSuggestion av)
                     yield return new XmlSchemaAutocompleteItem($"{av.QuoteChar}{av.Value}{av.QuoteChar}", 2, av.Value, suggestion.Title, suggestion.Description);
                 else if (suggestion is AutocompleteValueSuggestion v)
