@@ -51,6 +51,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         [InlineData("<MyDoc><Members><c ", "xsi:nil", "gender", "manager", "surname")]
         [InlineData("<MyDoc><Staff ", "xsi:type", "gender", "manager", "surname")]
         [InlineData("<MyDoc><Staff s", "surname")]
+        [InlineData("<MyDoc><Staff gender='Male'")]
         [InlineData("<MyDoc><Staff gender='Male' ", "xsi:type", "manager", "surname")]
         [InlineData("<MyDoc><Staff f")]
         public void SuggestsAttributes(string input, params string[] attributes)

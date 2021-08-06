@@ -442,7 +442,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
                     return suggestions.ToArray();
                 }
-                else if (parser.State == ReaderState.AwaitingAttribute || parser.State == ReaderState.InAttributeName)
+                else if ((parser.State == ReaderState.AwaitingAttribute && Char.IsWhiteSpace(text[text.Length - 1])) || parser.State == ReaderState.InAttributeName)
                 {
                     length = element.CurrentAttribute?.Length ?? 0;
 
