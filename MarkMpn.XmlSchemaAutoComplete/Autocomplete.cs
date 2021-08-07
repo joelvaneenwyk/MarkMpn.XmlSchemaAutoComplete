@@ -763,7 +763,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
             exporter.ExportTypeMapping(mapping);
 
             if (attr != null)
-                AddAttributeDescription(mapping.XsdTypeName, attr.AttributeName, title, description);
+                AddAttributeDescription(mapping.XsdTypeName, String.IsNullOrEmpty(attr.AttributeName) ? memberName : attr.AttributeName, title, description);
             else
                 AddElementDescription(mapping.XsdTypeName, memberName, title, description);
         }
