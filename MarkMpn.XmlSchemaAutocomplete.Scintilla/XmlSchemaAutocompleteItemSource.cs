@@ -25,15 +25,15 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla
             foreach (var suggestion in suggestions)
             {
                 if (suggestion is AutocompleteElementSuggestion el)
-                    yield return new XmlSchemaAutocompleteItem("<" + el.Name + (el.SelfClosing && !el.HasAttributes ? " />" : ""), 0, el.Name, suggestion.Title, suggestion.Description);
+                    yield return new XmlSchemaAutocompleteItem("<" + el.Name + (el.SelfClosing && !el.HasAttributes ? " />" : ""), 0, suggestion.DisplayName ?? el.Name, suggestion.Title, suggestion.Description);
                 else if (suggestion is AutocompleteAttributeSuggestion at)
-                    yield return new XmlSchemaAutocompleteItem(at.Name + "=\"\"", 1, at.Name, suggestion.Title, suggestion.Description);
+                    yield return new XmlSchemaAutocompleteItem(at.Name + "=\"\"", 1, suggestion.DisplayName ?? at.Name, suggestion.Title, suggestion.Description);
                 else if (suggestion is AutocompleteAttributeValueSuggestion av)
-                    yield return new XmlSchemaAutocompleteItem($"{av.QuoteChar}{av.Value}{av.QuoteChar}", 2, av.Value, suggestion.Title, suggestion.Description);
+                    yield return new XmlSchemaAutocompleteItem($"{av.QuoteChar}{av.Value}{av.QuoteChar}", 2, suggestion.DisplayName ?? av.Value, suggestion.Title, suggestion.Description);
                 else if (suggestion is AutocompleteValueSuggestion v)
-                    yield return new XmlSchemaAutocompleteItem(v.Value, 3, v.Value, suggestion.Title, suggestion.Description);
+                    yield return new XmlSchemaAutocompleteItem(v.Value, 3, suggestion.DisplayName ?? v.Value, suggestion.Title, suggestion.Description);
                 else if (suggestion is AutocompleteEndElementSuggestion end)
-                    yield return new XmlSchemaAutocompleteItem(end.IncludeSlash ? $"/{end.Name}" : end.Name, 4, $"/{end.Name}", suggestion.Title, suggestion.Description);
+                    yield return new XmlSchemaAutocompleteItem($"</{end.Name}>", 4, suggestion.DisplayName ?? $"/{end.Name}", suggestion.Title, suggestion.Description);
             }
         }
 
