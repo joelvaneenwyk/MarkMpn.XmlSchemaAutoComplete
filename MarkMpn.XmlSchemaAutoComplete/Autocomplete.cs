@@ -755,15 +755,15 @@ namespace MarkMpn.XmlSchemaAutocomplete
             if (member == null)
                 throw new ArgumentOutOfRangeException(nameof(memberName), "Unknown member " + memberName);
 
-            var attr = member.GetCustomAttributes(typeof(XmlAttributeAttribute));
+            var attr = (XmlAttributeAttribute) member.GetCustomAttributes(typeof(XmlAttributeAttribute)).FirstOrDefault();
 
             var schemas = new XmlSchemas();
             var exporter = new XmlSchemaExporter(schemas);
             var mapping = new XmlReflectionImporter().ImportTypeMapping(typeof(TObject));
             exporter.ExportTypeMapping(mapping);
 
-            if (attr.Any())
-                AddAttributeDescription(mapping.XsdTypeName, memberName, title, description);
+            if (attr != null)
+                AddAttributeDescription(mapping.XsdTypeName, attr.AttributeName, title, description);
             else
                 AddElementDescription(mapping.XsdTypeName, memberName, title, description);
         }
