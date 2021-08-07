@@ -563,7 +563,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                     }
 
                     return suggestions
-                        .Where(a => a.Value.StartsWith(element.Attributes[element.CurrentAttribute] ?? ""))
+                        .Where(a => a.Value.StartsWith(element.Attributes[element.CurrentAttribute] ?? "") || a.DisplayName != null && a.DisplayName.StartsWith(element.Attributes[element.CurrentAttribute] ?? ""))
                         .ToArray<AutocompleteSuggestion>();
                 }
                 else if (parser.State == ReaderState.InText)
@@ -645,7 +645,9 @@ namespace MarkMpn.XmlSchemaAutocomplete
                 }
 
                 AutocompleteValue(this, new AutocompleteValueEventArgs(suggestions, currentElement.Element, schemaTypes, schemaElements));
-                return suggestions.ToArray<AutocompleteSuggestion>();
+                return suggestions
+                    .Where(a => a.Value.StartsWith(text) || a.DisplayName != null && a.DisplayName.StartsWith(text))
+                    .ToArray<AutocompleteSuggestion>();
             }
 
             return Array.Empty<AutocompleteSuggestion>();
