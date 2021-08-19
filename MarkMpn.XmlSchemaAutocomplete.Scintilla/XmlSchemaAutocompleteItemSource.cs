@@ -6,7 +6,7 @@ using AutocompleteMenuNS;
 
 namespace MarkMpn.XmlSchemaAutocomplete.Scintilla
 {
-    public class XmlSchemaAutocompleteItemSource : IEnumerable<AutocompleteItem>
+    class XmlSchemaAutocompleteItemSource : IEnumerable<AutocompleteItem>
     {
         private readonly Autocomplete _autocomplete;
         private readonly ScintillaNET.Scintilla _scintilla;

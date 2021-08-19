@@ -39,7 +39,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
     }
 #endif
 
-    public class Autocomplete
+    class Autocomplete
     {
         private readonly XmlSchemaSet _schemas;
 
@@ -192,12 +192,18 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
         public AutocompleteSuggestion[] GetSuggestions(string text, out int length)
         {
+            return GetSuggestions(text, out length, out _, out _, out _);
+        }
+
+        public AutocompleteSuggestion[] GetSuggestions(string text, out int length, out PartialXmlReader parser, out PartialXmlNode lastNode, out XmlSchemaType lastElementType)
+        {
             length = 0;
 
-            var parser = new PartialXmlReader(text);
+            parser = new PartialXmlReader(text);
             var elements = new Stack<ElementState>();
             PartialXmlElement firstElement = null;
-            PartialXmlNode lastNode = null;
+            lastNode = null;
+            lastElementType = null;
             var valid = true;
             var document = new XmlDocument();
 
@@ -355,6 +361,9 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
             if (lastNode is PartialXmlElement element)
             {
+                if (elements.TryPeek(out var currentElement))
+                    lastElementType = currentElement.Type;
+
                 if (parser.State == ReaderState.InStartElement)
                 {
                     length = element.Name.Length;
@@ -371,7 +380,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
                     var suggestions = new List<AutocompleteSuggestion>();
 
-                    if (elements.TryPeek(out var currentElement))
+                    if (currentElement != null)
                     {
                         var canClose = String.IsNullOrEmpty(element.Name);
 
@@ -448,7 +457,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
                     var suggestions = new List<AutocompleteAttributeSuggestion>();
 
-                    if (elements.TryPeek(out var currentElement) &&
+                    if (currentElement != null &&
                         currentElement.Type is XmlSchemaComplexType complex)
                     {
                         suggestions.AddRange(complex.AttributeUses
@@ -492,7 +501,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
                     var suggestions = new List<AutocompleteAttributeValueSuggestion>();
 
-                    if (elements.TryPeek(out var currentElement) &&
+                    if (currentElement != null &&
                         currentElement.Type is XmlSchemaComplexType complex)
                     {
                         var attribute = complex.AttributeUses
@@ -712,7 +721,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
         public string Description { get; set; }
     }
 
-    public class Autocomplete<T> : Autocomplete
+    class Autocomplete<T> : Autocomplete
     {
         public Autocomplete() : base(GetSchemaSet())
         {

@@ -248,6 +248,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
             }
         }
     }
+    
     enum ReaderState
     {
         BOF,

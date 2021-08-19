@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Xml.Schema;
 using AutocompleteMenuNS;
 using ScintillaNET;
 
@@ -13,10 +14,13 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla
     {
         private bool _skipQuote;
         private ScintillaNET.Scintilla _scintilla;
+        private Autocomplete _autocomplete;
         private AutocompleteMenu _menu;
 
         public ScintillaXmlHelper(ScintillaNET.Scintilla scintilla, Autocomplete autocomplete)
         {
+            _autocomplete = autocomplete;
+
             _menu = new AutocompleteMenu();
             _menu.MinFragmentLength = 0;
             _menu.AllowsTabKey = true;
@@ -103,17 +107,22 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla
             if (e.KeyCode == Keys.OemPeriod)
             {
                 // Auto-close elements
-                var parser = new PartialXmlReader(scintilla.GetTextRange(0, scintilla.SelectionStart) + ">");
-                PartialXmlNode lastNode = null;
-                while (parser.TryRead(out var node))
-                    lastNode = node;
+                _autocomplete.GetSuggestions(scintilla.GetTextRange(0, scintilla.SelectionStart), out _, out var parser, out var lastNode, out var lastElementType);
 
-                if (lastNode is PartialXmlElement lastElement && parser.State == ReaderState.InText && !lastElement.SelfClosing)
+                if (lastNode is PartialXmlElement lastElement && (parser.State == ReaderState.AwaitingAttribute || parser.State == ReaderState.InStartElement))
                 {
-                    var pos = scintilla.SelectionStart;
-                    scintilla.ReplaceSelection($"</{lastElement.Name}>");
-                    scintilla.SelectionStart = pos;
-                    scintilla.SelectionEnd = pos;
+                    // Check if we should make this a self-closing element
+                    if (lastElementType is XmlSchemaComplexType complexType && complexType.ContentType == XmlSchemaContentType.Empty)
+                    {
+                        scintilla.ReplaceSelection("/");
+                    }
+                    else
+                    {
+                        var pos = scintilla.SelectionStart;
+                        scintilla.ReplaceSelection($"</{lastElement.Name}>");
+                        scintilla.SelectionStart = pos;
+                        scintilla.SelectionEnd = pos;
+                    }
                 }
             }
 
