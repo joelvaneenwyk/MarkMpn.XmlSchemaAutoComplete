@@ -107,21 +107,26 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla
             if (e.KeyCode == Keys.OemPeriod)
             {
                 // Auto-close elements
-                _autocomplete.GetSuggestions(scintilla.GetTextRange(0, scintilla.SelectionStart), out _, out var parser, out var lastNode, out var lastElementType);
+                var text = scintilla.GetTextRange(0, scintilla.SelectionStart);
 
-                if (lastNode is PartialXmlElement lastElement && (parser.State == ReaderState.AwaitingAttribute || parser.State == ReaderState.InStartElement))
+                if (!text.EndsWith("/"))
                 {
-                    // Check if we should make this a self-closing element
-                    if (lastElementType is XmlSchemaComplexType complexType && complexType.ContentType == XmlSchemaContentType.Empty)
+                    _autocomplete.GetSuggestions(scintilla.GetTextRange(0, scintilla.SelectionStart), out _, out var parser, out var lastNode, out var lastElementType);
+
+                    if (lastNode is PartialXmlElement lastElement && (parser.State == ReaderState.AwaitingAttribute || parser.State == ReaderState.InStartElement))
                     {
-                        scintilla.ReplaceSelection("/");
-                    }
-                    else
-                    {
-                        var pos = scintilla.SelectionStart;
-                        scintilla.ReplaceSelection($"</{lastElement.Name}>");
-                        scintilla.SelectionStart = pos;
-                        scintilla.SelectionEnd = pos;
+                        // Check if we should make this a self-closing element
+                        if (lastElementType is XmlSchemaComplexType complexType && complexType.ContentType == XmlSchemaContentType.Empty)
+                        {
+                            scintilla.ReplaceSelection("/");
+                        }
+                        else
+                        {
+                            var pos = scintilla.SelectionStart;
+                            scintilla.ReplaceSelection($"</{lastElement.Name}>");
+                            scintilla.SelectionStart = pos;
+                            scintilla.SelectionEnd = pos;
+                        }
                     }
                 }
             }
