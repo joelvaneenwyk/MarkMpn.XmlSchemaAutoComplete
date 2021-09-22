@@ -44,7 +44,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
     public class AutocompleteElementSuggestion : AutocompleteSuggestion
     {
-        internal AutocompleteElementSuggestion(XmlSchemaElement element) : base(element)
+        internal AutocompleteElementSuggestion(XmlSchemaElement element, XmlSchemaSet schemas) : base(element)
         {
             Name = element.Name;
 
@@ -52,6 +52,11 @@ namespace MarkMpn.XmlSchemaAutocomplete
             {
                 SelfClosing = complex.ContentType == XmlSchemaContentType.Empty;
                 HasAttributes = complex.AttributeUses.Count > 0;
+
+                var hasDerivedTypes = schemas.Schemas().Cast<XmlSchema>().Any(schema => schema.SchemaTypes.Values.OfType<XmlSchemaComplexType>().Any(type => type.BaseXmlSchemaType == element.ElementSchemaType));
+
+                if (hasDerivedTypes)
+                    HasAttributes = true;
             }
         }
 

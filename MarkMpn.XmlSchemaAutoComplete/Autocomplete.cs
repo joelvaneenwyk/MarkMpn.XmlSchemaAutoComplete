@@ -162,18 +162,25 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
         class ElementState
         {
-            public ElementState(XmlSchemaElement schemaElement, XmlElement element)
+            public ElementState(XmlSchemaElement schemaElement, XmlElement element, XmlSchemaSet schemas)
             {
                 SchemaElement = schemaElement;
                 ElementCount = new Dictionary<XmlSchemaObject, int>();
                 Element = element;
+                Type = schemaElement.ElementSchemaType;
+
+                if (element.HasAttribute("xsi:type"))
+                {
+                    var typeName = element.GetAttribute("xsi:type");
+                    Type = schemas.Schemas().Cast<XmlSchema>().SelectMany(schema => schema.SchemaTypes.Values.OfType<XmlSchemaComplexType>().Where(type => type.BaseXmlSchemaType == Type && type.Name == typeName)).FirstOrDefault() ?? Type;
+                }
             }
 
             public XmlSchemaElement SchemaElement { get; }
 
             public string ElementName => SchemaElement.Name;
 
-            public XmlSchemaType Type => SchemaElement.ElementSchemaType;
+            public XmlSchemaType Type { get; }
 
             public bool IsNillable => SchemaElement.IsNillable;
 
@@ -235,7 +242,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                             // Add the element to the document
                             var newElement = CreateElement(document, elem);
                             document.AppendChild(newElement);
-                            elements.Push(new ElementState(rootElement, newElement));
+                            elements.Push(new ElementState(rootElement, newElement, _schemas));
                             break;
                         }
                     }
@@ -308,7 +315,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
                                     var newElement = CreateElement(document, elem);
                                     currentElement.Element.AppendChild(newElement);
-                                    elements.Push(new ElementState(matchedElement, newElement));
+                                    elements.Push(new ElementState(matchedElement, newElement, _schemas));
                                     break;
                                 }
 
@@ -341,7 +348,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                             {
                                 var newElement = CreateElement(document, elem);
                                 currentElement.Element.AppendChild(newElement);
-                                elements.Push(new ElementState(matchedElement, newElement));
+                                elements.Push(new ElementState(matchedElement, newElement, _schemas));
                             }
                             else
                             {
@@ -374,7 +381,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                         return _schemas.GlobalElements.Values
                             .Cast<XmlSchemaElement>()
                             .Where(e => e.Name.StartsWith(element.Name))
-                            .Select(e => new AutocompleteElementSuggestion(e))
+                            .Select(e => new AutocompleteElementSuggestion(e, _schemas))
                             .ToArray<AutocompleteSuggestion>();
                     }
 
@@ -398,13 +405,13 @@ namespace MarkMpn.XmlSchemaAutocomplete
                                                 break;
 
                                             if (childElement.Name.StartsWith(element.Name))
-                                                suggestions.Add(new AutocompleteElementSuggestion(childElement));
+                                                suggestions.Add(new AutocompleteElementSuggestion(childElement, _schemas));
                                         }
                                     }
                                     else if (child is XmlSchemaElement childElement)
                                     {
                                         if (childElement.Name.StartsWith(element.Name))
-                                            suggestions.Add(new AutocompleteElementSuggestion(childElement));
+                                            suggestions.Add(new AutocompleteElementSuggestion(childElement, _schemas));
 
                                         currentElement.ElementCount.TryGetValue(childElement, out var count);
                                         if (childElement.MinOccurs > count)
@@ -438,7 +445,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                                         break;
 
                                     if (childElement.Name.StartsWith(element.Name))
-                                        suggestions.Add(new AutocompleteElementSuggestion(childElement));
+                                        suggestions.Add(new AutocompleteElementSuggestion(childElement, _schemas));
                                 }
 
                                 canClose = currentElement.RepeatCount >= choice.MinOccurs;
