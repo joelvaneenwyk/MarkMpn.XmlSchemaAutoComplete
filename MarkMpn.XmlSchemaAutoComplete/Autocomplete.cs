@@ -221,8 +221,14 @@ namespace MarkMpn.XmlSchemaAutocomplete
                 if (node is PartialXmlProcessingInstruction)
                     continue;
 
-                if (node is PartialXmlText txt && String.IsNullOrWhiteSpace(txt.Text))
-                    continue;
+                if (node is PartialXmlText txt)
+                {
+                    if (String.IsNullOrWhiteSpace(txt.Text))
+                        continue;
+
+                    if (elements.TryPeek(out var currentElement))
+                        currentElement.Element.AppendChild(document.CreateTextNode(txt.Text));
+                }
 
                 if (!valid)
                     return Array.Empty<AutocompleteSuggestion>();
