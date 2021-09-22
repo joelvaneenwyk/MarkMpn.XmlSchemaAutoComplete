@@ -492,9 +492,15 @@ namespace MarkMpn.XmlSchemaAutocomplete
                     }
 
                     // If this is the root element and we have any extension types, offer the xmlns:xsi attribute
-                    if (UsesXsi && element == firstElement && _schemas.Schemas().Cast<XmlSchema>().Any(schema => schema.SchemaTypes.Values.OfType<XmlSchemaComplexType>().Any(type => type.BaseXmlSchemaType != null)))
+                    if (UsesXsi && element == firstElement)
                     {
-                        suggestions.Insert(0, new AutocompleteAttributeSuggestion { Name = "xmlns:xsi", Title = "XML Schema Instance", Description = "Includes the XML Schema Instance namespace" });
+                        var pos = 0;
+
+                        if (_schemas.Schemas().Cast<XmlSchema>().Any(schema => schema.SchemaTypes.Values.OfType<XmlSchemaComplexType>().Any(type => type.BaseXmlSchemaType != null)))
+                            suggestions.Insert(pos++, new AutocompleteAttributeSuggestion { Name = "xmlns:xsi", Title = "XML Schema Instance", Description = "Includes the XML Schema Instance namespace" });
+
+                        if (_schemas.Schemas().Cast<XmlSchema>().Any(schema => schema.SchemaTypes.Values.OfType<XmlSchemaComplexType>().Any(type => type.Particle is XmlSchemaSequence sequence && sequence.Items.OfType<XmlSchemaElement>().Any(sequenceElement => sequenceElement.ElementSchemaType.Name == null))))
+                            suggestions.Insert(pos++, new AutocompleteAttributeSuggestion { Name = "xmlns:xsd", Title = "XML Schema Definition", Description = "Include the XML Schema Definition namespace" });
                     }
 
                     return suggestions
@@ -553,6 +559,10 @@ namespace MarkMpn.XmlSchemaAutocomplete
                     {
                         suggestions.Add(new AutocompleteAttributeValueSuggestion { Value = "http://www.w3.org/2001/XMLSchema-instance" });
                     }
+                    else if (element.CurrentAttribute == "xmlns:xsd")
+                    {
+                        suggestions.Add(new AutocompleteAttributeValueSuggestion { Value = "http://www.w3.org/2001/XMLSchema" });
+                    }
                     else if (element.CurrentAttribute == "xsi:type")
                     {
                         suggestions.AddRange(_schemas.Schemas()
@@ -565,6 +575,62 @@ namespace MarkMpn.XmlSchemaAutocomplete
                                     .Select(type => new AutocompleteAttributeValueSuggestion(type))
                             )
                         );
+
+                        if (currentElement.Type.Name == null)
+                        {
+                            // Allow any standard type
+                            suggestions.AddRange(new[]
+                            {
+                                // Primitive types
+                                "string",
+                                "boolean",
+                                "decimal",
+                                "float",
+                                "double",
+                                "duration",
+                                "dateTime",
+                                "time",
+                                "date",
+                                "gYearMonth",
+                                "gYear",
+                                "gMonthDay",
+                                "gDay",
+                                "gMonth",
+                                "hexBinary",
+                                "base64Binary",
+                                "anyURI",
+                                "QName",
+                                "NOTATION",
+
+                                // Derived types
+                                "normalizedString",
+                                "token",
+                                "language",
+                                "NMTOKEN",
+                                "NMTOKENS",
+                                "Name",
+                                "NCName",
+                                "ID",
+                                "IDREF",
+                                "IDREFS",
+                                "ENTITY",
+                                "ENTITIES",
+                                "integer",
+                                "nonPositiveInteger",
+                                "negativeInteger",
+                                "long",
+                                "int",
+                                "short",
+                                "byte",
+                                "nonNegativeInteger",
+                                "unsignedLong",
+                                "unsignedInt",
+                                "unsignedShort",
+                                "unsignedByte",
+                                "positiveInteger"
+                            }
+                            .Select(name => new AutocompleteAttributeValueSuggestion { Value = "xsd:" + name }));
+                        }
                     }
                     else if (element.CurrentAttribute == "xsi:nil")
                     {

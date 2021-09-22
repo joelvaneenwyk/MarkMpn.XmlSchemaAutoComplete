@@ -145,7 +145,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Scintilla
                 var lineToPos = currentLine.Text.Substring(0, scintilla.CurrentPosition - currentLine.Position);
                 var lineAfterPos = currentLine.Text.Substring(scintilla.CurrentPosition - currentLine.Position);
 
-                _autocomplete.GetSuggestions(scintilla.GetTextRange(0, scintilla.SelectionStart), out _, out var parser, out var lastNode, out var lastElementType);
+                _autocomplete.GetSuggestions(lineToPos, out _, out var parser, out var lastNode, out var lastElementType);
 
                 if (lastNode is PartialXmlElement lastElement && !lastElement.SelfClosing)
                     insertText += Indent;
