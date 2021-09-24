@@ -386,7 +386,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                         // Suggest possible root elements
                         return _schemas.GlobalElements.Values
                             .Cast<XmlSchemaElement>()
-                            .Where(e => e.Name.StartsWith(element.Name))
+                            .Where(e => e.Name.StartsWith(element.Name, StringComparison.OrdinalIgnoreCase))
                             .Select(e => new AutocompleteElementSuggestion(e, _schemas))
                             .ToArray<AutocompleteSuggestion>();
                     }
@@ -410,13 +410,13 @@ namespace MarkMpn.XmlSchemaAutocomplete
                                             if (!(choiceItem is XmlSchemaElement childElement))
                                                 break;
 
-                                            if (childElement.Name.StartsWith(element.Name))
+                                            if (childElement.Name.StartsWith(element.Name, StringComparison.OrdinalIgnoreCase))
                                                 suggestions.Add(new AutocompleteElementSuggestion(childElement, _schemas));
                                         }
                                     }
                                     else if (child is XmlSchemaElement childElement)
                                     {
-                                        if (childElement.Name.StartsWith(element.Name))
+                                        if (childElement.Name.StartsWith(element.Name, StringComparison.OrdinalIgnoreCase))
                                             suggestions.Add(new AutocompleteElementSuggestion(childElement, _schemas));
 
                                         currentElement.ElementCount.TryGetValue(childElement, out var count);
@@ -450,7 +450,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                                     if (!(child is XmlSchemaElement childElement))
                                         break;
 
-                                    if (childElement.Name.StartsWith(element.Name))
+                                    if (childElement.Name.StartsWith(element.Name, StringComparison.OrdinalIgnoreCase))
                                         suggestions.Add(new AutocompleteElementSuggestion(childElement, _schemas));
                                 }
 
@@ -510,7 +510,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                     }
 
                     return suggestions
-                        .Where(a => a.Name.StartsWith(element.CurrentAttribute ?? "") && !element.Attributes.ContainsKey(a.Name))
+                        .Where(a => a.Name.StartsWith(element.CurrentAttribute ?? "", StringComparison.OrdinalIgnoreCase) && !element.Attributes.ContainsKey(a.Name))
                         .ToArray<AutocompleteSuggestion>();
                 }
                 else if (parser.State == ReaderState.InAttributeEquals || parser.State == ReaderState.InAttributeValue)
@@ -651,7 +651,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                     }
 
                     return suggestions
-                        .Where(a => a.Value.StartsWith(element.Attributes[element.CurrentAttribute] ?? "") || a.DisplayName != null && a.DisplayName.StartsWith(element.Attributes[element.CurrentAttribute] ?? ""))
+                        .Where(a => a.Value.StartsWith(element.Attributes[element.CurrentAttribute] ?? "", StringComparison.OrdinalIgnoreCase) || a.DisplayName != null && a.DisplayName.StartsWith(element.Attributes[element.CurrentAttribute] ?? "", StringComparison.OrdinalIgnoreCase))
                         .ToArray<AutocompleteSuggestion>();
                 }
                 else if (parser.State == ReaderState.InText)
@@ -667,7 +667,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
             else if (lastNode is PartialXmlEndElement endElement)
             {
                 if (elements.TryPeek(out var currentElement) &&
-                    currentElement.ElementName.StartsWith(endElement.Name))
+                    currentElement.ElementName.StartsWith(endElement.Name, StringComparison.OrdinalIgnoreCase))
                     return new AutocompleteSuggestion[] { new AutocompleteEndElementSuggestion(currentElement.SchemaElement) };
             }
 
@@ -703,7 +703,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                 if (simple.TypeCode == XmlTypeCode.Boolean)
                 {
                     return new[] { "false", "true" }
-                        .Where(value => value.StartsWith(text.Trim()))
+                        .Where(value => value.StartsWith(text.Trim(), StringComparison.OrdinalIgnoreCase))
                         .Select(value => new AutocompleteValueSuggestion { Value = value })
                         .ToArray<AutocompleteSuggestion>();
                 }
@@ -713,7 +713,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                 {
                     return attrValues.Facets
                         .OfType<XmlSchemaEnumerationFacet>()
-                        .Where(value => value.Value.StartsWith(text.Trim()))
+                        .Where(value => value.Value.StartsWith(text.Trim(), StringComparison.OrdinalIgnoreCase))
                         .Select(value => new AutocompleteValueSuggestion(value))
                         .ToArray<AutocompleteSuggestion>();
                 }
@@ -734,7 +734,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
 
                 AutocompleteValue(this, new AutocompleteValueEventArgs(suggestions, currentElement.Element, schemaTypes, schemaElements));
                 return suggestions
-                    .Where(a => a.Value.StartsWith(text) || a.DisplayName != null && a.DisplayName.StartsWith(text))
+                    .Where(a => a.Value.StartsWith(text, StringComparison.OrdinalIgnoreCase) || a.DisplayName != null && a.DisplayName.StartsWith(text, StringComparison.OrdinalIgnoreCase))
                     .ToArray<AutocompleteSuggestion>();
             }
 

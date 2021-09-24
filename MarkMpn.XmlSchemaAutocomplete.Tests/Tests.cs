@@ -12,7 +12,8 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         [Theory]
         [InlineData("<", "MyDoc")]
         [InlineData("<M", "MyDoc")]
-        [InlineData("<m")]
+        [InlineData("<m", "MyDoc")]
+        [InlineData("<t")]
         public void SuggestsAllPossibleRootElements(string input, params string[] elements)
         {
             var autocomplete = new Autocomplete<Root>();
@@ -46,7 +47,7 @@ namespace MarkMpn.XmlSchemaAutocomplete.Tests
         }
 
         [Theory]
-        [InlineData("<MyDoc ", "xmlns:xsi", "xsi:nil")]
+        [InlineData("<MyDoc ", "xmlns:xsi", "xmlns:xsd", "xsi:nil")]
         [InlineData("<MyDoc><Members><p ", "xsi:nil", "xsi:type", "gender", "manager", "surname")]
         [InlineData("<MyDoc><Members><c ", "xsi:nil", "gender", "manager", "surname")]
         [InlineData("<MyDoc><Staff ", "xsi:type", "gender", "manager", "surname")]
