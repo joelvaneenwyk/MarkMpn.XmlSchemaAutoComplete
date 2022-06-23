@@ -520,15 +520,7 @@ namespace AutocompleteMenuNS
 
             if (!Host.Visible)
             {
-                if ((e.KeyCode < Keys.A || e.KeyCode > Keys.Z) &&
-                    (e.KeyCode < Keys.D0 || e.KeyCode > Keys.D9) &&
-                    (e.KeyCode < Keys.NumPad0 || e.KeyCode > Keys.NumPad9) &&
-                    e.KeyCode != Keys.OemMinus &&
-                    e.KeyCode != Keys.OemPeriod &&
-                    e.KeyCode != Keys.Oemcomma &&
-                    e.KeyCode != Keys.Oemplus &&
-                    e.KeyCode != Keys.Oem3 &&
-                    e.KeyCode != Keys.Space)
+                if (!IsAutocompleteTriggerKey(e))
                 {
                     timer.Stop();
                     return;
@@ -543,6 +535,24 @@ namespace AutocompleteMenuNS
             }
 
             ResetTimer();
+        }
+
+        protected virtual bool IsAutocompleteTriggerKey(KeyEventArgs e)
+        {
+            if ((e.KeyCode < Keys.A || e.KeyCode > Keys.Z) &&
+                (e.KeyCode < Keys.D0 || e.KeyCode > Keys.D9) &&
+                (e.KeyCode < Keys.NumPad0 || e.KeyCode > Keys.NumPad9) &&
+                e.KeyCode != Keys.OemMinus &&
+                e.KeyCode != Keys.OemPeriod &&
+                e.KeyCode != Keys.Oemcomma &&
+                e.KeyCode != Keys.Oemplus &&
+                e.KeyCode != Keys.Oem3 &&
+                e.KeyCode != Keys.Space)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         void ResetTimer()
