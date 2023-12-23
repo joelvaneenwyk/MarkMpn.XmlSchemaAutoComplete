@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MarkMpn.XmlSchemaAutocomplete
 {
-    class PartialXmlReader
+    public class PartialXmlReader
     {
         private readonly string _text;
         private int _offset;
@@ -248,8 +248,8 @@ namespace MarkMpn.XmlSchemaAutocomplete
             }
         }
     }
-    
-    enum ReaderState
+
+    public enum ReaderState
     {
         BOF,
         InProcessingInstruction,

@@ -4,16 +4,16 @@ using System.Text;
 
 namespace MarkMpn.XmlSchemaAutocomplete
 {
-    abstract class PartialXmlNode
+    public abstract class PartialXmlNode
     {
     }
 
-    class PartialXmlProcessingInstruction : PartialXmlNode
+    public class PartialXmlProcessingInstruction : PartialXmlNode
     {
 
     }
 
-    class PartialXmlElement : PartialXmlNode
+    public class PartialXmlElement : PartialXmlNode
     {
         public string Name { get; set; }
 

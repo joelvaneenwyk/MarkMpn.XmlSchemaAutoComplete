@@ -39,7 +39,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
     }
 #endif
 
-    class Autocomplete
+    public class Autocomplete
     {
         private readonly XmlSchemaSet _schemas;
 
@@ -800,7 +800,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
         public string Description { get; set; }
     }
 
-    class Autocomplete<T> : Autocomplete
+    public class Autocomplete<T> : Autocomplete
     {
         public Autocomplete() : base(GetSchemaSet())
         {
