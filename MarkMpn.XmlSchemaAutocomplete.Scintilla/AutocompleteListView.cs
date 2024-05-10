@@ -161,7 +161,7 @@ namespace AutocompleteMenuNS
                     VerticalScroll.Value = SelectedItemIndex * ItemHeight;
             if (y > ClientSize.Height - ItemHeight)
                 VerticalScroll.Value = Math.Min(VerticalScroll.Maximum,
-                                                (HasColumn ? (SelectedItemIndex*ItemHeight) + ItemHeight : SelectedItemIndex * ItemHeight) - ClientSize.Height + ItemHeight);
+                                                (HasColumn ? SelectedItemIndex*ItemHeight + ItemHeight : SelectedItemIndex * ItemHeight) - ClientSize.Height + ItemHeight);
 
             //Show headers if index 0 is selected.
             if (HasColumn && SelectedItemIndex == 0)
@@ -243,7 +243,7 @@ namespace AutocompleteMenuNS
             for (int i = startI; i < finishI; i++)
             {
                 if(HasColumn)
-                    y = (i * ItemHeight - VerticalScroll.Value) + ItemHeight;
+                    y = i * ItemHeight - VerticalScroll.Value + ItemHeight;
                 else
                     y = i * ItemHeight - VerticalScroll.Value;
 
@@ -350,7 +350,7 @@ namespace AutocompleteMenuNS
 
         private int PointToItemIndex(Point p)
         {
-            var t = (p.Y + VerticalScroll.Value);
+            var t = p.Y + VerticalScroll.Value;
             if (HasColumn)
                 t -= ItemHeight;
             return (float)t / ItemHeight < 0 ? -1 : t / ItemHeight;

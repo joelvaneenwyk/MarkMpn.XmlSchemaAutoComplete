@@ -668,7 +668,7 @@ namespace AutocompleteMenuNS
             string text = fragment.Text;
             //
             if (sourceItems != null)
-            if (forced || (text.Length >= MinFragmentLength /* && tb.Selection.Start == tb.Selection.End*/))
+            if (forced || text.Length >= MinFragmentLength /* && tb.Selection.Start == tb.Selection.End*/)
             {
                 Fragment = fragment;
                 //build popup menu
@@ -728,7 +728,7 @@ namespace AutocompleteMenuNS
 
             //go backward
             i = startPos;
-            while (i > 0 && (i - 1) < text.Length)
+            while (i > 0 && i - 1 < text.Length)
             {
                 if (!regex.IsMatch(text[i - 1].ToString()))
                     break;
