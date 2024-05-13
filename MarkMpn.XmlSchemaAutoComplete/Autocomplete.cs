@@ -259,7 +259,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
                 {
                     if (!elements.TryPop(out var lastElement))
                         return Array.Empty<AutocompleteSuggestion>();
-                    
+
                     if (lastElement.ElementName != end.Name)
                     {
                         if (parser.State == ReaderState.InEndElement)
@@ -842,7 +842,7 @@ namespace MarkMpn.XmlSchemaAutocomplete
             if (member == null)
                 throw new ArgumentOutOfRangeException(nameof(memberName), "Unknown member " + memberName);
 
-            var attr = (XmlAttributeAttribute) member.GetCustomAttributes(typeof(XmlAttributeAttribute)).FirstOrDefault();
+            var attr = (XmlAttributeAttribute)member.GetCustomAttributes(typeof(XmlAttributeAttribute)).FirstOrDefault();
 
             var schemas = new XmlSchemas();
             var exporter = new XmlSchemaExporter(schemas);

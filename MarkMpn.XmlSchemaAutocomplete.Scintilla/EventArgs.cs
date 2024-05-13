@@ -33,7 +33,7 @@ namespace AutocompleteMenuNS
         public bool IsHovered { get; internal set; }
         public Colors Colors { get; internal set; }
 
-        public PaintItemEventArgs(Graphics graphics, Rectangle clipRect):base(graphics, clipRect)
+        public PaintItemEventArgs(Graphics graphics, Rectangle clipRect) : base(graphics, clipRect)
         {
         }
     }

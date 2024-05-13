@@ -26,7 +26,7 @@ namespace AutocompleteMenuNS
         /// <summary>
         /// Image index for this item
         /// </summary>
-        public int ImageIndex{get; set; }
+        public int ImageIndex { get; set; }
 
         /// <summary>
         /// Alignment. The direction the text shows.
@@ -67,7 +67,7 @@ namespace AutocompleteMenuNS
             ImageIndex = -1;
         }
 
-        public AutocompleteItem(string text):this()
+        public AutocompleteItem(string text) : this()
         {
             Text = text;
             Alignment = StringAlignment.Near;
@@ -129,8 +129,8 @@ namespace AutocompleteMenuNS
 
         public virtual void OnPaint(PaintItemEventArgs e)
         {
-            using(var brush = new SolidBrush(e.IsSelected ? e.Colors.SelectedForeColor : e.Colors.ForeColor))
-                e.Graphics.DrawString(ToString(), e.Font, brush, e.TextRect, new StringFormat() {Alignment = Alignment});
+            using (var brush = new SolidBrush(e.IsSelected ? e.Colors.SelectedForeColor : e.Colors.ForeColor))
+                e.Graphics.DrawString(ToString(), e.Font, brush, e.TextRect, new StringFormat() { Alignment = Alignment });
         }
     }
 

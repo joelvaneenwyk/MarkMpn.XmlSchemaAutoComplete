@@ -25,7 +25,7 @@ public class ScintillaWrapper : ITextBoxWrapper
 
     public bool Readonly
     {
-        get{ return target.ReadOnly; }
+        get { return target.ReadOnly; }
     }
 
     public string SelectedText

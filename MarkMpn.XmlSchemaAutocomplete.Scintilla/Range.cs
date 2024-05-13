@@ -16,7 +16,7 @@
             get
             {
                 var text = TargetWrapper.Text;
-                
+
                 if (string.IsNullOrEmpty(text))
                     return "";
                 if (Start >= text.Length)

@@ -64,7 +64,8 @@ namespace AutocompleteMenuNS
         public int ItemHeight
         {
             get { return itemHeight; }
-            set { 
+            set
+            {
                 itemHeight = value;
                 VerticalScroll.SmallChange = value;
                 oldItemCount = -1;
@@ -137,7 +138,7 @@ namespace AutocompleteMenuNS
             if (oldItemCount == VisibleItems.Count)
                 return;
 
-            int needHeight = ItemHeight*VisibleItems.Count + 1;
+            int needHeight = ItemHeight * VisibleItems.Count + 1;
             if (HasColumn) needHeight += ItemHeight;
             Height = Math.Min(needHeight, MaximumSize.Height);
             AutoScrollMinSize = new Size(0, needHeight);
@@ -148,20 +149,20 @@ namespace AutocompleteMenuNS
         private void ScrollToSelected()
         {
             int y;
-            if(HasColumn)
-                y = (SelectedItemIndex + 1)*ItemHeight - VerticalScroll.Value;
+            if (HasColumn)
+                y = (SelectedItemIndex + 1) * ItemHeight - VerticalScroll.Value;
             else
                 y = SelectedItemIndex * ItemHeight - VerticalScroll.Value;
             //if (HasColumn) y += ItemHeight;
 
             if (y < 0)
-                if(HasColumn)
+                if (HasColumn)
                     VerticalScroll.Value = (SelectedItemIndex + 1) * ItemHeight;
                 else
                     VerticalScroll.Value = SelectedItemIndex * ItemHeight;
             if (y > ClientSize.Height - ItemHeight)
                 VerticalScroll.Value = Math.Min(VerticalScroll.Maximum,
-                                                (HasColumn ? SelectedItemIndex*ItemHeight + ItemHeight : SelectedItemIndex * ItemHeight) - ClientSize.Height + ItemHeight);
+                                                (HasColumn ? SelectedItemIndex * ItemHeight + ItemHeight : SelectedItemIndex * ItemHeight) - ClientSize.Height + ItemHeight);
 
             //Show headers if index 0 is selected.
             if (HasColumn && SelectedItemIndex == 0)
@@ -195,8 +196,8 @@ namespace AutocompleteMenuNS
         {
             bool rtl = RightToLeft == RightToLeft.Yes;
             AdjustScroll();
-            int startI = VerticalScroll.Value/ItemHeight - 1;
-            int finishI = (VerticalScroll.Value + ClientSize.Height)/ItemHeight + 1;
+            int startI = VerticalScroll.Value / ItemHeight - 1;
+            int finishI = (VerticalScroll.Value + ClientSize.Height) / ItemHeight + 1;
             int y = 0;
 
             var sf = new StringFormat();
@@ -242,7 +243,7 @@ namespace AutocompleteMenuNS
 
             for (int i = startI; i < finishI; i++)
             {
-                if(HasColumn)
+                if (HasColumn)
                     y = i * ItemHeight - VerticalScroll.Value + ItemHeight;
                 else
                     y = i * ItemHeight - VerticalScroll.Value;
@@ -262,23 +263,23 @@ namespace AutocompleteMenuNS
                     Brush selectedBrush = new LinearGradientBrush(new Point(0, y - 3), new Point(0, y + ItemHeight),
                                                                   Colors.SelectedBackColor2, Colors.SelectedBackColor);
                     e.Graphics.FillRectangle(selectedBrush, textRect);
-                    using(var pen = new Pen(Colors.SelectedBackColor2))
+                    using (var pen = new Pen(Colors.SelectedBackColor2))
                         e.Graphics.DrawRectangle(pen, textRect);
                 }
 
                 if (i == HighlightedItemIndex)
-                using (var pen = new Pen(Colors.HighlightingColor))
-                    e.Graphics.DrawRectangle(pen, textRect);
+                    using (var pen = new Pen(Colors.HighlightingColor))
+                        e.Graphics.DrawRectangle(pen, textRect);
 
                 var args = new PaintItemEventArgs(e.Graphics, e.ClipRectangle)
-                               {
-                                   Font = Font,
-                                   TextRect = new RectangleF(textRect.Location, textRect.Size),
-                                   StringFormat = sf,
-                                   IsSelected = i == SelectedItemIndex,
-                                   IsHovered = i == HighlightedItemIndex,
-                                   Colors = Colors
-                               };
+                {
+                    Font = Font,
+                    TextRect = new RectangleF(textRect.Location, textRect.Size),
+                    StringFormat = sf,
+                    IsSelected = i == SelectedItemIndex,
+                    IsHovered = i == HighlightedItemIndex,
+                    Colors = Colors
+                };
                 //call drawing
                 VisibleItems[i].OnPaint(args);
             }
@@ -360,7 +361,7 @@ namespace AutocompleteMenuNS
         {
             var host = Parent as AutocompleteMenuHost;
             if (host != null)
-                if (host.Menu.ProcessKey((char) keyData, Keys.None))
+                if (host.Menu.ProcessKey((char)keyData, Keys.None))
                     return true;
 
             return base.ProcessCmdKey(ref msg, keyData);

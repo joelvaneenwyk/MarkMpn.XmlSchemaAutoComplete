@@ -11,12 +11,13 @@ namespace AutocompleteMenuNS
         public ToolStripControlHost Host { get; set; }
         public readonly AutocompleteMenu Menu;
 
-        public IAutocompleteListView ListView 
-        { 
+        public IAutocompleteListView ListView
+        {
             get { return listView; }
-            set {
+            set
+            {
 
-                if(listView != null)
+                if (listView != null)
                     (listView as Control).LostFocus -= new EventHandler(ListView_LostFocus);
 
                 if (value == null)
@@ -103,11 +104,11 @@ namespace AutocompleteMenuNS
                 (ListView as Control).RightToLeft = value;
             }
         }
-        
+
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-            if(!(ListView as Control).Focused)
+            if (!(ListView as Control).Focused)
                 Close();
         }
 
